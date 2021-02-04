@@ -26,6 +26,16 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     paranoid: true,
   });
+  User.associate = function (models) {
+    User.hasMany(models.Test, {
+      as: 'tests',
+      foreignKey: 'idUser',
+    });
+    User.hasMany(models.Patient, {
+      as: 'patients',
+      foreignKey: 'idUser',
+    });
+  };
   User.beforeCreate(async (model) => {
     const hash = await bcrypt.hash(model.password, 10);
     model.password = hash;
