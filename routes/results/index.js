@@ -5,7 +5,10 @@ const ResultsController = require('../../controllers/results');
 
 const results = express.Router();
 
-// Post
-results.post('/', auth.valid, ResultsController.postUser);
+// POST
+results.post('/', auth.valid, ResultsController.postResult);
+
+// GET
+results.get('/', auth.valid, ResultsController.getResults);
 
 module.exports = results;
