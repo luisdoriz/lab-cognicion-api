@@ -5,16 +5,12 @@ const postTest = async (body) =>  Test.create(body);
 
 const createTest = async (body) =>  {
     try {
-        if (body.idAccessUrl) {
-            idAccessUrl = body.idAccessUrl
-        } else {
-            const accessUrl = await createAccessUrl()
-            idAccessUrl = accessUrl.id
-        }
+        const accessUrl = await createAccessUrl()
+        idAccessUrl = accessUrl.id
         const testBody = {
-            idUser: body.profesional,
-            idPatient: body.paciente,
-            type: body.idPrueba,
+            idUser: body.idUser,
+            idPatient: body.idPatient,
+            type: body.idTestType,
             idAccessUrl,
         }
         test = await postTest(testBody)
