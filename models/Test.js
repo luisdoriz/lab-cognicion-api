@@ -7,7 +7,8 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     idAccessUrl: DataTypes.INTEGER,
     idUser: DataTypes.INTEGER,
-    type: DataTypes.STRING
+    type: DataTypes.INTEGER,
+    idPatient: DataTypes.INTEGER,
   }, {});
 
   Test.associate = function (models) {
@@ -18,6 +19,14 @@ module.exports = (sequelize, DataTypes) => {
     Test.belongsTo(models.AccessUrl, {
       as: 'accessUrl',
       foreignKey: 'idAccessUrl',
+    });
+    Test.belongsTo(models.TestType, {
+      as: 'testType',
+      foreignKey: 'type',
+    });
+    Test.belongsTo(models.Patient, {
+      as: 'patient',
+      foreignKey: 'idPatient',
     });
   };
   return Test;
