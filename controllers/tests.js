@@ -51,12 +51,11 @@ exports.getResults = async (req, res) => {
 
 exports.getResult = async (req, res) => {
     const { params, body } = req;
-    const { id: idUser } = body.user;
     const { id: idTest } = params;
     try {
         const test = await getUserTest(idTest);
         const testApiUrl = process.env.TESTS_API;
-        url = `${testApiUrl}/results?idTest=${idTest}&idUser=${idUser}`
+        url = `${testApiUrl}/results?idTest=${idTest}`
         const request = await axios.get(url)
         const { data } = request.data
         let results = {}
@@ -64,6 +63,19 @@ exports.getResult = async (req, res) => {
             results = data[0]
         }
         res.status(200).json({ data: { test, results } });
+    } catch (error) {
+        console.log("Error", error)
+        res.status(500).json({ status: responses.INTERNAL_ERROR, error });
+    }
+}
+
+exports.getFiabilityTest = async (req, res) => {
+      try {
+        const testApiUrl = process.env.TESTS_API;
+        url = `${testApiUrl}/results/fiability`
+        const request = await axios.get(url)
+        const { data } = request.data
+        res.status(200).json({ data });
     } catch (error) {
         console.log("Error", error)
         res.status(500).json({ status: responses.INTERNAL_ERROR, error });
