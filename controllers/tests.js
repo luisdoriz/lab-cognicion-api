@@ -1,6 +1,6 @@
 const axios = require('axios');
 const { createTest } = require('../actions/tests/create');
-const { getUserTests, getUserTest } = require('../actions/tests/read');
+const { getUserTests, getUserTest, getTestByQuery } = require('../actions/tests/read');
 const responses = require('../constants/responses');
 
 
@@ -37,9 +37,8 @@ exports.postResult = async (req, res) => {
 };
 
 exports.getResults = async (req, res) => {
-    const { params, body } = req;
+    const { body } = req;
     const { id: idUser } = body.user;
-    params.profesional = idUser;
     try {
         const tests = await getUserTests(idUser);
         res.status(200).json({ data: tests });
@@ -48,6 +47,21 @@ exports.getResults = async (req, res) => {
         res.status(400).json({ status: responses.INTERNAL_ERROR, error });
     }
 }
+
+exports.searchTests = async (req, res) => {
+    const { query, body } = req;
+    const { id: idUser } = body.user;
+    query.idUser = idUser;
+    console.log(query)
+    try {
+        const tests = await getTestByQuery(query);
+        res.status(200).json({ data: tests });
+    } catch (error) {
+        console.log("Error", error)
+        res.status(400).json({ status: responses.INTERNAL_ERROR, error });
+    }
+}
+
 
 exports.getResult = async (req, res) => {
     const { params, body } = req;

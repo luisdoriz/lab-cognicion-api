@@ -11,6 +11,7 @@ results.post('/results', auth.valid, TestsController.postResult);
 
 // GET
 results.get('/', auth.valid, TestsController.getResults);
+results.get('/search', auth.valid, TestsController.searchTests);
 results.get('/fiability', auth.valid, TestsController.getFiabilityTest);
 results.get('/:id', auth.valid, TestsController.getResult);
 

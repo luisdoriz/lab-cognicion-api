@@ -1,10 +1,26 @@
+const { Op } = require('sequelize');
 const models = require('../../models');
 
 const { Test, AccessUrl, TestType, Patient } = models;
 
-const getTestByQuery = async (query) => Test.findAll({
-    where: query,
-    include: [{
+const getTestByQuery = async (query) => {
+    if ('date' in query) {
+        if ('endDate' in query) {
+            endDate = new Date(query.endDate)
+            delete query.endDate
+        } else {
+            endDate = new Date()
+        }
+        start_date = new Date(query.date)
+        delete query.date
+        query.createdAt = {
+            [Op.between]: [start_date, endDate]
+        }
+    }
+    query = {
+        where: query,
+    };
+    query.include = [{
         model: AccessUrl,
         as: 'accessUrl',
     },
@@ -17,8 +33,8 @@ const getTestByQuery = async (query) => Test.findAll({
         as: "patient",
     },
     ]
-
-});
+    return Test.findAll(query)
+}
 
 const getById = async (query) => Test.findOne({
     where: query,
