@@ -1,5 +1,6 @@
 const UsersRoutes = require('./users');
 const TestsRoutes = require('./tests');
+const SurveysRoutes = require('./surveys');
 const PatientsRoutes = require('./patients');
 
 module.exports = (app, io) => {
@@ -9,4 +10,5 @@ module.exports = (app, io) => {
   app.use('/users', UsersRoutes);
   app.use('/tests', TestsRoutes);
   app.use('/patients', PatientsRoutes)
+  app.use('/surveys', SurveysRoutes)
 };
