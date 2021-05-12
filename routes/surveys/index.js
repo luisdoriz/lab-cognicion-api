@@ -6,10 +6,12 @@ const SurveysController = require('../../controllers/surveys');
 const results = express.Router();
 
 // POST
-results.post('/', auth.valid, SurveysController.postSurveyAnswer);
+results.post('/', auth.valid, SurveysController.postSurvey);
+results.post('/answer', auth.valid, SurveysController.postSurveyAnswer);
 
 // GET
 results.get('/', auth.valid, SurveysController.getSurveys);
+results.get('/search', auth.valid, SurveysController.searchSurveys);
 results.get('/:id', auth.valid, SurveysController.getSurvey);
 // results.get('/types', auth.valid, TestsController.getSurveyTypes);
 

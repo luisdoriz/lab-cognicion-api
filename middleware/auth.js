@@ -13,26 +13,31 @@ exports.valid = (req, res, next) => {
   if (req.headers.authorization && req.headers.authorization !== 'undefined' && req.headers.authorization.length > 0) {
     try {
       const decoded = jwt.decode(req.headers.authorization, tokenSecret);
-      User.findOne({
-        where: {
-          id: decoded.id,
-          token: req.headers.authorization,
-        },
-      }).then((user) => {
-        if (user.id) {
-          req.body.user = user;
-          next();
-        } else {
+      if ('idAccessUrl' in decoded) {
+        req.body.idAccessUrl = decoded.idAccessUrl
+        next()
+      } else {
+        User.findOne({
+          where: {
+            id: decoded.id,
+            token: req.headers.authorization,
+          },
+        }).then((user) => {
+          if (user.id) {
+            req.body.user = user;
+            next();
+          } else {
+            res.status(401).json({
+              status: 'error', message: 'Unauthorized',
+            });
+          }
+        }).catch((err) => {
           res.status(401).json({
-            status: 'error', message: 'Unauthorized',
+            status: 'error', message: 'Unauthorized', error: err,
           });
-        }
-      }).catch((err) => {
-        res.status(401).json({
-          status: 'error', message: 'Unauthorized', error: err,
         });
-      });
-    } catch(e) {
+      }
+    } catch (e) {
       res.status(401).json({
         status: 'error', message: 'Unauthorized',
       });

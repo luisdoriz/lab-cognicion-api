@@ -13,6 +13,8 @@ module.exports = (sequelize, DataTypes) => {
 
   AccessUrl.beforeCreate(async (model) => {
     const expires = moment().add(3, 'months').valueOf();
+    console.log(model)
+    console.log(model.id)
     const token = jwt.encode({
       idAccessUrl: model.id,
       exp: expires,
