@@ -7,6 +7,9 @@ module.exports = (sequelize, DataTypes) => {
     idAccessUrl: DataTypes.INTEGER,
     idUser: DataTypes.INTEGER,
     type: DataTypes.INTEGER,
+    name: DataTypes.STRING,
+    lastName: DataTypes.STRING,
+    relationship: DataTypes.STRING,
     idPatient: DataTypes.INTEGER,
   }, {});
 

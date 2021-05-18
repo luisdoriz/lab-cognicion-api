@@ -7,13 +7,24 @@ const createSurvey = async (body) =>  {
     try {
         const accessUrl = await createAccessUrl()
         idAccessUrl = accessUrl.id
-        const testBody = {
-            idUser: body.idUser,
-            idPatient: body.idPatient,
-            type: body.idSurveyType,
+        const {
+            idUser,
+            idPatient,
+            idSurveyType: type,
+            name,
+            lastName,
+            relationship,
+        } = body;
+        const surveyBody = {
+            idUser,
+            idPatient,
+            type,
+            name,
+            lastName,
+            relationship,
             idAccessUrl,
         }
-        test = await postSurvey(testBody)
+        test = await postSurvey(surveyBody)
         return test
     } catch(err) {
         console.log("error", err)

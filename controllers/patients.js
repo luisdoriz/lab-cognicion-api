@@ -1,4 +1,4 @@
-const { findPatientByQuery } = require('../actions/patients/read');
+const { findPatientsByQuery } = require('../actions/patients/read');
 const responses = require('../constants/responses');
 
 
@@ -11,7 +11,7 @@ exports.getPatientById = async (req, res) => {
             idUser,
             id,
         };
-        const patients = await findPatientByQuery(query);
+        const patients = await findPatientsByQuery(query);
         if (patients.length > 0) {
             patient = patients[0]
             res.status(200).json({ status: responses.SUCCESS_STATUS, data: patient });
@@ -31,7 +31,7 @@ exports.getPatients = async (req, res) => {
         const query = {
             idUser,
         };
-        const patients = await findPatientByQuery(query);
+        const patients = await findPatientsByQuery(query);
         if (patients.length > 0) {
             res.status(200).json({ status: responses.SUCCESS_STATUS, data: patients });
         } else {

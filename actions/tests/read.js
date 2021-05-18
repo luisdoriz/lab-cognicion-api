@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const models = require('../../models');
 
-const { Test, AccessUrl, TestType, Patient } = models;
+const { Test, AccessUrl, TestType, Patient, User } = models;
 
 const getTestByQuery = async (query) => {
     if ('date' in query) {
@@ -19,6 +19,9 @@ const getTestByQuery = async (query) => {
     }
     query = {
         where: query,
+        order: [
+            ['id', 'DESC'],
+        ],    
     };
     query.include = [{
         model: AccessUrl,
@@ -64,8 +67,33 @@ const getUserTest = async (id) => {
     return results
 }
 
+const getByAccessUrlId = async (id) => Test.findOne({
+    include: [{
+        model: AccessUrl,
+        as: 'accessUrl',
+        where: {
+            id
+        }
+    },
+    {
+        model: TestType,
+        as: "testType",
+    },
+    {
+        model: User,
+        as: "user",
+    },
+    {
+        model: Patient,
+        as: "patient",
+    },
+    ]
+
+});
+
 module.exports = {
     getTestByQuery,
     getUserTests,
     getUserTest,
+    getByAccessUrlId,
 };

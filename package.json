@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/luisdoriz/lab-cognicion-api#readme",
   "dependencies": {
+    "@sendgrid/mail": "^7.4.4",
     "app-root-path": "^3.0.0",
     "axios": "^0.21.1",
     "bcryptjs": "^2.4.3",

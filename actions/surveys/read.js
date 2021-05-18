@@ -19,6 +19,9 @@ const getSurveyByQuery = async (query) => {
     }
     query = {
         where: query,
+        order: [
+            ['id', 'DESC'],
+        ],    
     };
     query.include = [{
         model: AccessUrl,
@@ -89,4 +92,5 @@ module.exports = {
     getUserSurveys,
     getUserSurvey,
     getByAccessUrlId,
+    getById,
 };
