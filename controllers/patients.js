@@ -2,6 +2,7 @@ const {
   findPatientsByQuery,
   createPatient,
   updatePatient,
+  deletePatient,
 } = require("../actions/patients");
 const responses = require("../constants/responses");
 
@@ -81,6 +82,20 @@ exports.putPatient = async (req, res) => {
   };
   try {
     const data = await updatePatient(ids, body);
+    res.status(200).json({ status: responses.SUCCESS_STATUS, data });
+  } catch {
+    res.status(500).json({
+      status: responses.ERROR_STATUS,
+      error: "Internal Error.",
+    });
+  }
+};
+
+exports.deletePatient = async (req, res) => {
+  const { id } = req.params;
+  const { id: idUser } = req.body.user;
+  try {
+    const data = await deletePatient(id, idUser);
     res.status(200).json({ status: responses.SUCCESS_STATUS, data });
   } catch {
     res.status(500).json({

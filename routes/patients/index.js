@@ -15,5 +15,7 @@ patients.put('/:id', auth.valid, PatientsController.putPatient);
 // POST 
 patients.post('/', auth.valid, PatientsController.postPatient);
 
+// POST 
+patients.delete('/:id', auth.valid, PatientsController.deletePatient);
 
 module.exports = patients;
