@@ -1,4 +1,8 @@
-const { findPatientsByQuery } = require("../actions/patients/read");
+const {
+  findPatientsByQuery,
+  createPatient,
+  updatePatient,
+} = require("../actions/patients");
 const responses = require("../constants/responses");
 
 exports.getPatientById = async (req, res) => {
@@ -50,5 +54,38 @@ exports.getPatients = async (req, res) => {
   } catch (error) {
     console.log("Error: ", error);
     res.status(500).json({ status: responses.INTERNAL_ERROR, error });
+  }
+};
+
+exports.postPatient = async (req, res) => {
+  const { body } = req;
+  const { id: idUser } = body.user;
+  try {
+    body.idUser = idUser;
+    const data = await createPatient(body);
+    res.status(200).json({ status: responses.SUCCESS_STATUS, data });
+  } catch (error) {
+    console.log("Error: ", error);
+    res.status(500).json({ status: responses.INTERNAL_ERROR, error });
+  }
+};
+
+exports.putPatient = async (req, res) => {
+  const { id: idUser } = req.body.user;
+  const { id } = req.params;
+  delete req.body.user;
+  const body = { ...req.body };
+  const ids = {
+    idUser,
+    id,
+  };
+  try {
+    const data = await updatePatient(ids, body);
+    res.status(200).json({ status: responses.SUCCESS_STATUS, data });
+  } catch {
+    res.status(500).json({
+      status: responses.ERROR_STATUS,
+      error: "Internal Error.",
+    });
   }
 };

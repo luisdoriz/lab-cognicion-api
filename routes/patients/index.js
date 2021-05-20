@@ -9,4 +9,11 @@ const patients = express.Router();
 patients.get('/', auth.valid, PatientsController.getPatients);
 patients.get('/:id', auth.valid, PatientsController.getPatientById);
 
+// PUT
+patients.put('/:id', auth.valid, PatientsController.putPatient);
+
+// POST 
+patients.post('/', auth.valid, PatientsController.postPatient);
+
+
 module.exports = patients;

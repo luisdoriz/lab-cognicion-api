@@ -1,5 +1,9 @@
-const READ = import('./read');
+const READ = require("./read");
+const CREATE = require("./create");
+const UPDATE = require("./update");
 
 module.exports = {
-    ...READ
+  ...READ,
+  ...CREATE,
+  ...UPDATE,
 };
