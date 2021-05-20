@@ -46,12 +46,12 @@ exports.postResult = async (req, res) => {
 };
 
 exports.getResults = async (req, res) => {
-  const { body } = req;
+  const { body, query } = req;
   const { id: idUser, isAdmin } = body.user;
-
+  const { admin = false } = query;
   try {
     let tests = [];
-    if (!isAdmin) {
+    if (!isAdmin && !admin) {
       tests = await getUserTests(idUser);
     } else {
       tests = await getUserTests();
@@ -66,9 +66,12 @@ exports.getResults = async (req, res) => {
 exports.searchTests = async (req, res) => {
   const { query, body } = req;
   const { id: idUser, isAdmin } = body.user;
-  if (!isAdmin) {
+  const { admin = false } = query;
+  query.admin = admin
+  if (!isAdmin && !admin) {
     query.idUser = idUser;
   }
+  delete query.admin
   try {
     const tests = await getTestByQuery(query);
     res.status(200).json({ data: tests });

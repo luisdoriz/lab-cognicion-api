@@ -44,7 +44,7 @@ exports.logIn = async (req, res) => {
     const token = await Users.login(body);
     res.status(200).json({ status: responses.SUCCESS_STATUS, data: { token } });
   } catch {
-    res.status(400).json({ status: responses.ERROR_STATUS, error: 'Check the email address or password.' });
+    res.status(400).json({ status: responses.ERROR_STATUS, error: 'Revisa la direccion del correo o la contraseña.' });
   }
 };
 

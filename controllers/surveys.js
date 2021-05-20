@@ -44,9 +44,10 @@ exports.postSurveyAnswer = async (req, res) => {
 exports.getSurveys = async (req, res) => {
   const { query, body } = req;
   const { id: idUser, isAdmin } = body.user;
+  const { admin = false } = query;
   try {
-    let surveys = {}
-    if (!isAdmin) {
+    let surveys = {};
+    if (!isAdmin && !admin) {
       surveys = await getUserSurveys(idUser);
     } else {
       surveys = await getUserSurveys();
@@ -61,9 +62,12 @@ exports.getSurveys = async (req, res) => {
 exports.searchSurveys = async (req, res) => {
   const { query, body } = req;
   const { id: idUser, isAdmin } = body.user;
-  if (!isAdmin) {
+  const { admin = false } = query;
+  query.admin = admin;
+  if (!isAdmin && !admin) {
     query.idUser = idUser;
   }
+  delete query.admin;
   try {
     const tests = await getSurveyByQuery(query);
     res.status(200).json({ data: tests });
@@ -74,17 +78,18 @@ exports.searchSurveys = async (req, res) => {
 };
 
 exports.getSurvey = async (req, res) => {
-  const { params, body } = req;
+  const { params, body, query } = req;
   const { id: idUser, isAdmin } = body.user;
   const { id: idSurvey } = params;
-  
+  const { admin = false } = query;
+
   try {
     const survey = await getUserSurvey(idSurvey);
     const testApiUrl = process.env.TESTS_API;
     const query = {
       idSurvey,
     };
-    if (!isAdmin) {
+    if (!isAdmin && !admin) {
       query.idUser = idUser;
     }
     const request = await axios.get(`${testApiUrl}/surveys`, { params: query });
