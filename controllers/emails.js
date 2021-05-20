@@ -2,6 +2,7 @@ const TestActions = require("../actions/tests/read");
 const SurveysActions = require("../actions/surveys/read");
 const responses = require("../constants/responses");
 const { sendEmailTest, sendEmailSurvey } = require("../modules/sendgrid");
+const { getPublicTestUrl } = require("../helpers/public_urls");
 
 exports.sendEmail = async (req, res) => {
   const { id, type, email } = req.body;
@@ -9,11 +10,17 @@ exports.sendEmail = async (req, res) => {
   try {
     if (type == "test") {
       const test = await TestActions.getById(id);
-      sendEmailTest(email, test.accessUrl.token);
+      const params = await getPublicTestUrl(test);
+      const testTypes = ["atencion", "atencion/condicional", "atencion/hemi"]
+      const url = `https://practicas.affivent.com/${testTypes[test.type-1]}?${params}`
+      sendEmailTest(email, url);
       res.status(200).json({ data: `Email sent correctly to: ${email}` });
     } else if (type == "survey") {
       const survey = await SurveysActions.getById(id);
-      sendEmailSurvey(email, survey.accessUrl.token);
+      const { token } = survey.accessUrl;
+      const surveyTypes = ["cuestionario", "cuestionario/nechapi", "cuestionario/cupom"]
+      const url = `https://practicas.affivent.com/${surveyTypes[survey.type-1]}?token=${token}`
+      sendEmailSurvey(email, url);
       res.status(200).json({ data: `Email sent correctly to: ${email}` });
     } else {
       res

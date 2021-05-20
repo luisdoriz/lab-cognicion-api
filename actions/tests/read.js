@@ -96,4 +96,5 @@ module.exports = {
     getUserTests,
     getUserTest,
     getByAccessUrlId,
+    getById,
 };
