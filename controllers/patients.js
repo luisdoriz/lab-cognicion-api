@@ -30,12 +30,13 @@ exports.getPatients = async (req, res) => {
     const { body } = req;
     const { id: idUser, isAdmin } = body.user;
     try {
+        let query
         if (!isAdmin) {
-            const query = {
+            query = {
                 idUser,
             };
         } else {
-            const query = {}
+            query = {}
         }
         const patients = await findPatientsByQuery(query);
         if (patients.length > 0) {
