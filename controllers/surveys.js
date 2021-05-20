@@ -81,11 +81,16 @@ exports.getSurvey = async (req, res) => {
     let { data } = request.data;
     if (data.length > 0) {
       data = data[0];
-      res.status(200).json({ data: {survey, results: data} });
+      res
+        .status(200)
+        .json({
+          status: responses.SUCCESS_STATUS,
+          data: { survey, results: data },
+        });
     } else {
       res
-        .status(404)
-        .json({ status: responses.NOT_FOUND, error: "Survey not found" });
+        .status(200)
+        .json({ status: responses.SUCCESS_STATUS, data: { survey } });
     }
   } catch (error) {
     console.log("Error", error);
