@@ -43,9 +43,14 @@ exports.postSurveyAnswer = async (req, res) => {
 
 exports.getSurveys = async (req, res) => {
   const { query, body } = req;
-  const { id: idUser } = body.user;
+  const { id: idUser, isAdmin } = body.user;
   try {
-    const surveys = await getUserSurveys(idUser);
+    let surveys = {}
+    if (!isAdmin) {
+      surveys = await getUserSurveys(idUser);
+    } else {
+      surveys = await getUserSurveys();
+    }
     res.status(200).json({ data: surveys });
   } catch (error) {
     console.log("Error", error);
@@ -55,8 +60,10 @@ exports.getSurveys = async (req, res) => {
 
 exports.searchSurveys = async (req, res) => {
   const { query, body } = req;
-  const { id: idUser } = body.user;
-  query.idUser = idUser;
+  const { id: idUser, isAdmin } = body.user;
+  if (!isAdmin) {
+    query.idUser = idUser;
+  }
   try {
     const tests = await getSurveyByQuery(query);
     res.status(200).json({ data: tests });
@@ -68,25 +75,26 @@ exports.searchSurveys = async (req, res) => {
 
 exports.getSurvey = async (req, res) => {
   const { params, body } = req;
-  const { id: idUser } = body.user;
+  const { id: idUser, isAdmin } = body.user;
   const { id: idSurvey } = params;
+  
   try {
     const survey = await getUserSurvey(idSurvey);
     const testApiUrl = process.env.TESTS_API;
     const query = {
-      idUser,
       idSurvey,
     };
+    if (!isAdmin) {
+      query.idUser = idUser;
+    }
     const request = await axios.get(`${testApiUrl}/surveys`, { params: query });
     let { data } = request.data;
     if (data.length > 0) {
       data = data[0];
-      res
-        .status(200)
-        .json({
-          status: responses.SUCCESS_STATUS,
-          data: { survey, results: data },
-        });
+      res.status(200).json({
+        status: responses.SUCCESS_STATUS,
+        data: { survey, results: data },
+      });
     } else {
       res
         .status(200)

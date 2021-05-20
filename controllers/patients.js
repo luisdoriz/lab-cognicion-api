@@ -4,13 +4,15 @@ const responses = require('../constants/responses');
 
 exports.getPatientById = async (req, res) => {
     const { params, body } = req;
-    const { id: idUser } = body.user;
+    const { id: idUser, isAdmin } = body.user;
     const { id } = params;
     try {
         const query = {
-            idUser,
             id,
         };
+        if (!isAdmin) {
+            query.idUser = idUser
+        }
         const patients = await findPatientsByQuery(query);
         if (patients.length > 0) {
             patient = patients[0]
@@ -26,11 +28,15 @@ exports.getPatientById = async (req, res) => {
 
 exports.getPatients = async (req, res) => {
     const { body } = req;
-    const { id: idUser } = body.user;
+    const { id: idUser, isAdmin } = body.user;
     try {
-        const query = {
-            idUser,
-        };
+        if (!isAdmin) {
+            const query = {
+                idUser,
+            };
+        } else {
+            const query = {}
+        }
         const patients = await findPatientsByQuery(query);
         if (patients.length > 0) {
             res.status(200).json({ status: responses.SUCCESS_STATUS, data: patients });

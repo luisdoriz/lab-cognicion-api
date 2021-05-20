@@ -31,7 +31,7 @@ exports.postResult = async (req, res) => {
   const { body } = req;
   try {
     const testApiUrl = process.env.TESTS_API;
-    const test = await getByAccessUrlId(body.idAccessUrl)
+    const test = await getByAccessUrlId(body.idAccessUrl);
     const new_body = body;
     new_body.idUser = test.user.id;
     new_body.idTest = test.id;
@@ -47,9 +47,15 @@ exports.postResult = async (req, res) => {
 
 exports.getResults = async (req, res) => {
   const { body } = req;
-  const { id: idUser } = body.user;
+  const { id: idUser, isAdmin } = body.user;
+
   try {
-    const tests = await getUserTests(idUser);
+    let tests = [];
+    if (!isAdmin) {
+      tests = await getUserTests(idUser);
+    } else {
+      tests = await getUserTests();
+    }
     res.status(200).json({ data: tests });
   } catch (error) {
     console.log("Error", error);
@@ -59,9 +65,10 @@ exports.getResults = async (req, res) => {
 
 exports.searchTests = async (req, res) => {
   const { query, body } = req;
-  const { id: idUser } = body.user;
-  query.idUser = idUser;
-  console.log(query);
+  const { id: idUser, isAdmin } = body.user;
+  if (!isAdmin) {
+    query.idUser = idUser;
+  }
   try {
     const tests = await getTestByQuery(query);
     res.status(200).json({ data: tests });

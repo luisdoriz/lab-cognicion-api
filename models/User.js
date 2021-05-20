@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
     scholarship: DataTypes.STRING,
     logo: DataTypes.STRING,
     token: DataTypes.STRING,
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      default: false
+    },
     deletedAt: DataTypes.DATE
   }, {
     paranoid: true,
