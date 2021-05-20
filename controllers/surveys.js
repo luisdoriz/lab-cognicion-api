@@ -47,7 +47,7 @@ exports.getSurveys = async (req, res) => {
   const { admin = false } = query;
   try {
     let surveys = {};
-    if (!isAdmin && !admin) {
+    if (!isAdmin || !admin) {
       surveys = await getUserSurveys(idUser);
     } else {
       surveys = await getUserSurveys();
@@ -64,7 +64,7 @@ exports.searchSurveys = async (req, res) => {
   const { id: idUser, isAdmin } = body.user;
   const { admin = false } = query;
   query.admin = admin;
-  if (!isAdmin && !admin) {
+  if (!isAdmin || !admin) {
     query.idUser = idUser;
   }
   delete query.admin;
@@ -89,7 +89,7 @@ exports.getSurvey = async (req, res) => {
     const query = {
       idSurvey,
     };
-    if (!isAdmin && !admin) {
+    if (!isAdmin || !admin) {
       query.idUser = idUser;
     }
     const request = await axios.get(`${testApiUrl}/surveys`, { params: query });

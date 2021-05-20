@@ -10,7 +10,7 @@ exports.getPatientById = async (req, res) => {
     const query = {
       id,
     };
-    if (!isAdmin && !admin) {
+    if (!isAdmin || !admin) {
       query.idUser = idUser;
     }
     const patients = await findPatientsByQuery(query);
@@ -32,7 +32,7 @@ exports.getPatients = async (req, res) => {
   const { id: idUser, isAdmin } = body.user;
   try {
     let query;
-    if (!isAdmin && !admin) {
+    if (!isAdmin || !admin) {
       query = {
         idUser,
       };

@@ -51,7 +51,7 @@ exports.getResults = async (req, res) => {
   const { admin = false } = query;
   try {
     let tests = [];
-    if (!isAdmin && !admin) {
+    if (!isAdmin || !admin) {
       tests = await getUserTests(idUser);
     } else {
       tests = await getUserTests();
@@ -68,7 +68,7 @@ exports.searchTests = async (req, res) => {
   const { id: idUser, isAdmin } = body.user;
   const { admin = false } = query;
   query.admin = admin
-  if (!isAdmin && !admin) {
+  if (!isAdmin || !admin) {
     query.idUser = idUser;
   }
   delete query.admin
