@@ -3,6 +3,7 @@ const {
   createPatient,
   updatePatient,
   deletePatient,
+  findPatientByQuery,
 } = require("../actions/patients");
 const responses = require("../constants/responses");
 
@@ -18,13 +19,9 @@ exports.getPatientById = async (req, res) => {
     if (!isAdmin || !admin) {
       query.idUser = idUser;
     }
-    const patients = await findPatientsByQuery(query);
-    if (patients.length > 0) {
-      patient = patients[0];
-      res.status(200).json({ status: responses.SUCCESS_STATUS, data: patient });
-    } else {
-      res.status(400).json({ status: responses.NOT_FOUND, data: [] });
-    }
+    const patient = await findPatientByQuery(query);
+    if (patient === null) return res.sendStatus(404);
+    res.status(200).json({ status: responses.SUCCESS_STATUS, data: patient });
   } catch (error) {
     console.log("Error: ", error);
     res.status(500).json({ status: responses.INTERNAL_ERROR, error });

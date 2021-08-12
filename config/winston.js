@@ -1,26 +1,20 @@
-const appRoot = require('app-root-path');
-const { createLogger, format, transports } = require('winston');
+const appRoot = require("app-root-path");
+const { createLogger, format, transports } = require("winston");
 
-const level = process.env.LOG_LEVEL || 'debug';
+const level = process.env.LOG_LEVEL || "debug";
 
 const formatParams = (info) => {
-  const {
-    timestamp,
-    levelInfo,
-    message,
-    ...args
-  } = info;
-  const ts = timestamp.slice(0, 19).replace('T', ' ');
-  console.log(info);
-  return `${ts} ${levelInfo}: ${message} ${Object.keys(args).length
-    ? JSON.stringify(args, '', '')
-    : ''}`;
+  const { timestamp, levelInfo, message, ...args } = info;
+  const ts = timestamp.slice(0, 19).replace("T", " ");
+  return `${ts} ${levelInfo}: ${message} ${
+    Object.keys(args).length ? JSON.stringify(args, "", "") : ""
+  }`;
 };
 
 const productionFormat = format.combine(
   format.timestamp(),
   format.align(),
-  format.printf(formatParams),
+  format.printf(formatParams)
 );
 
 const options = {
@@ -33,7 +27,7 @@ const options = {
     colorize: false,
   },
   console: {
-    level: 'debug',
+    level: "debug",
     handleExceptions: true,
     json: false,
     colorize: true,

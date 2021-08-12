@@ -9,7 +9,6 @@ const sendEmail = (to, text, html) => {
     text,
     html,
   };
-  console.log(msg);
   sgMail
     .send(msg)
     .then(() => {
@@ -148,8 +147,12 @@ const getHtmlTemplate = (url, type) => {
                     <tr>
                       <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;">
                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Hola,</p>
-                        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Tiene un ${type == "survey" ? "Cuestionario" : "Ejercicio"} por realizar.</p>
-                        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Una vez realizado el ${type == "survey" ? "Cuestionario" : "Ejercicio"}, puede cerrar la pestaña.</p>
+                        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Tiene un ${
+                          type == "survey" ? "Cuestionario" : "Ejercicio"
+                        } por realizar.</p>
+                        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">Una vez realizado el ${
+                          type == "survey" ? "Cuestionario" : "Ejercicio"
+                        }, puede cerrar la pestaña.</p>
                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; Margin-bottom: 15px;">¡Un Saludo!</p>
                         <table border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: 100%; box-sizing: border-box;">
                           <tbody>
@@ -158,7 +161,9 @@ const getHtmlTemplate = (url, type) => {
                                 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; width: auto;">
                                   <tbody>
                                     <tr>
-                                      <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-color: #3498db; border-radius: 5px; text-align: center;"> <a href="${url}" target="_blank" style="display: inline-block; color: #ffffff; background-color: #3498db; border: solid 1px #3498db; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize; border-color: #3498db;">Realizar ${type == "survey" ? "Cuestionario" : "Ejercicio"}</a> </td>
+                                      <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; background-color: #3498db; border-radius: 5px; text-align: center;"> <a href="${url}" target="_blank" style="display: inline-block; color: #ffffff; background-color: #3498db; border: solid 1px #3498db; border-radius: 5px; box-sizing: border-box; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-transform: capitalize; border-color: #3498db;">Realizar ${
+    type == "survey" ? "Cuestionario" : "Ejercicio"
+  }</a> </td>
                                     </tr>
                                   </tbody>
                                 </table>
