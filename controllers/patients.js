@@ -80,7 +80,8 @@ exports.putPatient = async (req, res) => {
   try {
     const data = await updatePatient(ids, body);
     res.status(200).json({ status: responses.SUCCESS_STATUS, data });
-  } catch {
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       status: responses.ERROR_STATUS,
       error: "Internal Error.",
