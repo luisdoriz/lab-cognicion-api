@@ -12,7 +12,6 @@ const getError = (movement) => {
 
 const parseMovementsToFeatures = (movements) => {
   return movements.map((movement, index) => {
-    console.log(movement);
     let delta = Math.abs(
       moment(movement.timestamp_destino).diff(
         movement.timestamp_origen,
@@ -40,6 +39,30 @@ const parseMovementsToFeatures = (movements) => {
 };
 
 exports.createReportHanoi = async (req, res) => {
+  const { idTest } = req.params;
+  const test = await getUserTest(idTest);
+  const testApiUrl = process.env.TESTS_API;
+  url = `${testApiUrl}/results?idTest=${idTest}`;
+  const request = await axios.get(url);
+  const { data } = request.data;
+  let results = {};
+  if (data.length > 0) {
+    results = data[0];
+  }
+  const result = { test, results };
+  const workbook = XLSX.utils.book_new();
+  const movesWS = XLSX.utils.json_to_sheet(result.results.movements);
+  const patientWS = XLSX.utils.json_to_sheet([result.test.patient.dataValues]);
+  const configWS = XLSX.utils.json_to_sheet([result.results.settings]);
+  XLSX.utils.book_append_sheet(workbook, movesWS, "Movimientos");
+  XLSX.utils.book_append_sheet(workbook, patientWS, "Paciente");
+  XLSX.utils.book_append_sheet(workbook, configWS, "Parámetros");
+  const fileName = `Test_${idTest}_${moment().format("YYYY-MM-DD_HH:mm")}`;
+  XLSX.writeFile(workbook, `${__dirname}/files/${fileName}.xlsx`);
+  res.download(`${__dirname}/files/${fileName}.xlsx`, `${fileName}.xlsx`);
+};
+
+exports.createFeaturesHanoi = async (req, res) => {
   const { idTest } = req.params;
   const test = await getUserTest(idTest);
   const testApiUrl = process.env.TESTS_API;
