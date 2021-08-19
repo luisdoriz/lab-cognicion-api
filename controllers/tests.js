@@ -18,8 +18,8 @@ exports.createTest = async (req, res) => {
     delete new_body.user;
     const user_test = await createTest(new_body);
     new_body.idTest = user_test.id;
-    const request = await axios.post(`${testApiUrl}/settings`, new_body);
-    const patient = await findPatientByQuery({ id: new_body.idPatient });
+    await axios.post(`${testApiUrl}/settings`, new_body);
+    await findPatientByQuery({ id: new_body.idPatient });
     res.status(200).json({ data: user_test });
   } catch (error) {
     console.log("Error: ", error);
@@ -37,6 +37,7 @@ exports.postResult = async (req, res) => {
     new_body.idTest = test.id;
     new_body.idPatient = test.patient.id;
     delete new_body.idAccessUrl;
+    delete new_body.token;
     const request = await axios.post(`${testApiUrl}/results`, new_body);
     res.status(200).json(request.data);
   } catch (error) {
@@ -67,11 +68,11 @@ exports.searchTests = async (req, res) => {
   const { query, body } = req;
   const { id: idUser, isAdmin } = body.user;
   const { admin = false } = query;
-  query.admin = admin
+  query.admin = admin;
   if (!isAdmin || !admin) {
     query.idUser = idUser;
   }
-  delete query.admin
+  delete query.admin;
   try {
     const tests = await getTestByQuery(query);
     res.status(200).json({ data: tests });
