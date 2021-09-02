@@ -46,6 +46,23 @@ exports.postResult = async (req, res) => {
   }
 };
 
+exports.putResult = async (req, res) => {
+  const { body } = req;
+  try {
+    const testApiUrl = process.env.TESTS_API;
+    const new_body = body;
+    const rule = new_body.rule;
+    const request = await axios.put(
+      `${testApiUrl}/results/${new_body.idTest}`,
+      { rule }
+    );
+    res.status(200).json(request.data);
+  } catch (error) {
+    console.log("Error: ", error);
+    res.status(400).json({ status: responses.INTERNAL_ERROR, error });
+  }
+};
+
 exports.getResults = async (req, res) => {
   const { body, query } = req;
   const { id: idUser, isAdmin } = body.user;
