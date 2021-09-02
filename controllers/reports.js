@@ -3,6 +3,32 @@ const axios = require("axios");
 const { getUserTest } = require("../actions/tests/read");
 const moment = require("moment");
 
+const parseMoves = (results, testType) => {
+  let moves;
+  if (testType.idTestType === 4) {
+    moves = ºresults.movements;
+    moves = moves.map((move) => ({
+      ...move,
+      reaction: moment(move.timestamp_destino).diff(move.timestamp_origen),
+    }));
+    moves.forEach((move) => {
+      delete move.clicked;
+      delete move.emitted;
+    });
+  } else if (testType.idTestType === 5) {
+    moves = results.estimulos;
+    moves = moves.map((move) => ({
+      ...move,
+      reaction: moment(move.clicked).diff(move.emitted),
+    }));
+    moves.forEach((move) => {
+      delete move.timestamp_destino;
+      delete move.timestamp_origen;
+    });
+  }
+  return moves;
+};
+
 const getError = (movement) => {
   if (movement.error === "percepcion") return 1;
   if (movement.error === "arrepentimiento") return 2;
@@ -51,13 +77,7 @@ exports.createReportHanoi = async (req, res) => {
   }
   const result = { test, results };
   const workbook = XLSX.utils.book_new();
-  let moves = result.results.movements
-    ? result.results.movements
-    : result.results.estimulos;
-  moves = moves.map((move) => ({
-    ...move,
-    reaction: move.clicked ? moment(move.clicked).diff(move.emitted) : 0,
-  }));
+  const moves = parseMoves(results.results, test.testType);
   const movesWS = XLSX.utils.json_to_sheet(moves);
   const patientWS = XLSX.utils.json_to_sheet([result.test.patient.dataValues]);
   const configWS = XLSX.utils.json_to_sheet([result.results.settings]);
