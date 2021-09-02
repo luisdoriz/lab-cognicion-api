@@ -51,7 +51,14 @@ exports.createReportHanoi = async (req, res) => {
   }
   const result = { test, results };
   const workbook = XLSX.utils.book_new();
-  const movesWS = XLSX.utils.json_to_sheet(result.results.movements);
+  let moves = result.results.movements
+    ? result.results.movements
+    : result.results.estimulos;
+  moves = moves.map((move) => ({
+    ...move,
+    reaction: move.clicked ? moment(move.clicked).diff(move.emitted) : 0,
+  }));
+  const movesWS = XLSX.utils.json_to_sheet(moves);
   const patientWS = XLSX.utils.json_to_sheet([result.test.patient.dataValues]);
   const configWS = XLSX.utils.json_to_sheet([result.results.settings]);
   XLSX.utils.book_append_sheet(workbook, movesWS, "Movimientos");
