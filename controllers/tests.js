@@ -107,12 +107,17 @@ exports.getResult = async (req, res) => {
     const testApiUrl = process.env.TESTS_API;
     url = `${testApiUrl}/results?idTest=${idTest}`;
     const request = await axios.get(url);
+    const settings = await axios.get(`${testApiUrl}/settings`, {
+      params: { idTest },
+    });
     const { data } = request.data;
     let results = {};
     if (data.length > 0) {
       results = data[0];
     }
-    res.status(200).json({ data: { test, results } });
+    res
+      .status(200)
+      .json({ data: { test, results, settings: settings.data.data[0] } });
   } catch (error) {
     console.log("Error", error);
     res.status(500).json({ status: responses.INTERNAL_ERROR, error });

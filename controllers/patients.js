@@ -42,13 +42,7 @@ exports.getPatients = async (req, res) => {
       query = {};
     }
     const patients = await findPatientsByQuery(query);
-    if (patients.length > 0) {
-      res
-        .status(200)
-        .json({ status: responses.SUCCESS_STATUS, data: patients });
-    } else {
-      res.status(400).json({ status: responses.NOT_FOUND, data: [] });
-    }
+    res.status(200).json({ status: responses.SUCCESS_STATUS, data: patients });
   } catch (error) {
     console.log("Error: ", error);
     res.status(500).json({ status: responses.INTERNAL_ERROR, error });
