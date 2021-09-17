@@ -11,6 +11,7 @@ const createPatient = async (body) => {
       idUser: patient.idUser,
     });
   });
+  return patient;
 };
 
 module.exports = {
