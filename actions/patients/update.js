@@ -13,7 +13,7 @@ const updatePatient = async (ids, body) => {
           Damage.destroy({ where: { id: String(id).split("d")[1] } })
         );
       } else {
-        promises.push(Damage.create({ damageLocation, idUser: ids.idUser }));
+        promises.push(Damage.create({ damageLocation, idUser: ids.id }));
       }
     } else {
       promises.push(Damage.update({ damageLocation }, { where: { id } }));
