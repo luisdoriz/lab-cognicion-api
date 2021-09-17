@@ -4,6 +4,7 @@ const SurveysRoutes = require("./surveys");
 const PatientsRoutes = require("./patients");
 const EmailsRoutes = require("./emails");
 const ReportsRoutes = require("./reports");
+const CountriesRoutes = require("./countries");
 
 module.exports = (app, io) => {
   app.get("/", (req, res) => {
@@ -15,4 +16,5 @@ module.exports = (app, io) => {
   app.use("/surveys", SurveysRoutes);
   app.use("/emails", EmailsRoutes);
   app.use("/reports", ReportsRoutes);
+  app.use("/countries", CountriesRoutes);
 };
