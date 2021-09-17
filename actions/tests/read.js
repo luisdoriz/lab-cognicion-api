@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const models = require("../../models");
 
-const { Test, AccessUrl, TestType, Patient, User } = models;
+const { Test, AccessUrl, TestType, Patient, User, Damage } = models;
 
 const getTestByQuery = async (query) => {
   if ("date" in query) {
@@ -53,6 +53,10 @@ const getById = async (query) =>
       {
         model: Patient,
         as: "patient",
+        include: {
+          model: Damage,
+          as: "damages",
+        },
       },
     ],
   });
