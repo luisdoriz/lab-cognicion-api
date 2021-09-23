@@ -17,6 +17,9 @@ const getTestByQuery = async (query) => {
       [Op.between]: [start_date, endDate],
     };
   }
+  if (query.idPatient === "") {
+    delete query.idPatient;
+  }
   query = {
     where: query,
     order: [["id", "DESC"]],

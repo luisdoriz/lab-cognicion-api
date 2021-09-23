@@ -4,13 +4,13 @@ const { Patient, Damage } = models;
 
 const findPatientsByQuery = async (query) =>
   Patient.findAll({
-    where: query,
+    where: { ...query, deletedAt: null },
     order: [["id", "DESC"]],
   });
 
 const findPatientByQuery = async (query) =>
   Patient.findOne({
-    where: query,
+    where: { ...query, deletedAt: null },
     include: [{ model: Damage, as: "damages" }],
   });
 

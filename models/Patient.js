@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       drugsTreatment: DataTypes.BOOLEAN,
       whichDrugs: DataTypes.STRING,
       dose: DataTypes.STRING,
+      deletedAt: DataTypes.DATE,
     },
     {}
   );

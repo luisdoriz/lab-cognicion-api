@@ -89,7 +89,7 @@ exports.deletePatient = async (req, res) => {
   try {
     const data = await deletePatient(id, idUser);
     res.status(200).json({ status: responses.SUCCESS_STATUS, data });
-  } catch {
+  } catch (error) {
     res.status(500).json({
       status: responses.ERROR_STATUS,
       error: "Internal Error.",
