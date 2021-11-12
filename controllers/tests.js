@@ -8,6 +8,26 @@ const {
   getByAccessUrlId,
 } = require("../actions/tests/read");
 const responses = require("../constants/responses");
+const { printExcel } = require("../playground");
+
+const weights = {
+  anger: [
+    0.00142824, 0.00005922, -4.47620855, -2.16373442, 0.23588583, 37.46984216,
+  ],
+  sensation: [
+    0.00970492, 0.00121218, -2.90708073, 0.54886367, -0.57721933, 72.44405135,
+  ],
+  emotional: [
+    -0.00002479, -0.00050846, -8.49174107, -4.43767491, -0.0184151, 67.53824207,
+  ],
+  sociability: [
+    0.00369191, -0.00136071, 0.90040811, 2.26404486, 1.02968978, 62.52954642,
+  ],
+  motivation: [
+    -0.00293698, 0.00061018, -10.54274205, -5.66083633, -0.20580375,
+    58.74841384,
+  ],
+};
 
 exports.createTest = async (req, res) => {
   const { body } = req;
@@ -96,6 +116,48 @@ exports.searchTests = async (req, res) => {
   } catch (error) {
     console.log("Error", error);
     res.status(400).json({ status: responses.INTERNAL_ERROR, error });
+  }
+};
+
+const getNechapiFeature = (weights, estimulos) => {
+  console.log(weights);
+  let total = [];
+  estimulos.forEach((estimulo) => {
+    let result =
+      estimulo.index * weights[0] +
+      estimulo.reaccion * weights[1] +
+      estimulo.correct * weights[2] +
+      estimulo.error * weights[3] +
+      estimulo.grupo * weights[4] +
+      weights[5];
+    total.push(result);
+  });
+  return total[0];
+};
+
+exports.getAllPatientResults = async (req, res) => {
+  const { params } = req;
+  const { idPatient } = params;
+  try {
+    const results = await printExcel(idPatient);
+    results.forEach((result) => {
+      result.grupo = Math.ceil(Math.random() * 5);
+    });
+    const anger = getNechapiFeature(weights.anger, results).toFixed(2);
+    const sensation = getNechapiFeature(weights.sensation, results).toFixed(2);
+    const emotional = getNechapiFeature(weights.emotional, results).toFixed(2);
+    const sociability = getNechapiFeature(weights.sociability, results).toFixed(
+      2
+    );
+    const motivation = getNechapiFeature(weights.motivation, results).toFixed(
+      2
+    );
+    res.status(200).json({
+      data: { anger, sensation, emotional, sociability, motivation },
+    });
+  } catch (error) {
+    console.log("Error", error);
+    res.status(500).json({ status: responses.INTERNAL_ERROR, error });
   }
 };
 

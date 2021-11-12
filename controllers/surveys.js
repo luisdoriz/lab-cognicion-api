@@ -87,7 +87,7 @@ exports.getSurvey = async (req, res) => {
     const survey = await getUserSurvey(idSurvey);
     const testApiUrl = process.env.TESTS_API;
     const query = {
-      idSurvey,
+      idSurvey: parseInt(idSurvey),
     };
     if (!isAdmin || !admin) {
       query.idUser = idUser;
