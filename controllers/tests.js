@@ -120,7 +120,6 @@ exports.searchTests = async (req, res) => {
 };
 
 const getNechapiFeature = (weights, estimulos) => {
-  console.log(weights);
   let total = [];
   estimulos.forEach((estimulo) => {
     let result =
