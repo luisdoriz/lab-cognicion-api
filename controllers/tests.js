@@ -71,7 +71,7 @@ const getPuntuacionNechapi = (categoria, respuestas, tiempo) => {
     }
   });
   return parseFloat(
-    (parseFloat((puntuacion / total).toFixed(6)) * 100).toFixed(4)
+    (parseFloat((puntuacion / total).toFixed(6)) * 100).toFixed(3)
   );
 };
 
@@ -187,7 +187,7 @@ const getNechapiFeature = (feature, estimulos) => {
   });
   let average = result / total.length;
   return {
-    result: parseFloat(average.toFixed(4)),
+    result: parseFloat(average.toFixed(3)),
     average: feature.average,
     dev: feature.dev,
   };
