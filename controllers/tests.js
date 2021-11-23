@@ -10,23 +10,69 @@ const {
 const responses = require("../constants/responses");
 const { printExcel } = require("../playground");
 
-const weights = {
-  anger: [
-    0.00142824, 0.00005922, -4.47620855, -2.16373442, 0.23588583, 37.46984216,
-  ],
-  sensation: [
-    0.00970492, 0.00121218, -2.90708073, 0.54886367, -0.57721933, 72.44405135,
-  ],
-  emotional: [
-    -0.00002479, -0.00050846, -8.49174107, -4.43767491, -0.0184151, 67.53824207,
-  ],
-  sociability: [
-    0.00369191, -0.00136071, 0.90040811, 2.26404486, 1.02968978, 62.52954642,
-  ],
-  motivation: [
-    -0.00293698, 0.00061018, -10.54274205, -5.66083633, -0.20580375,
-    58.74841384,
-  ],
+const features = {
+  anger: {
+    average: 33.6387,
+    dev: 9.8626,
+    weights: [
+      0.00142824, 0.00005922, -4.47620855, -2.16373442, 0.23588583, 37.46984216,
+    ],
+  },
+  sensation: {
+    average: 71.3823,
+    dev: 14.9586,
+    weights: [
+      0.00970492, 0.00121218, -2.90708073, 0.54886367, -0.57721933, 72.44405135,
+    ],
+  },
+  emotional: {
+    average: 60.4118,
+    dev: 15.8384,
+    weights: [
+      -0.00002479, -0.00050846, -8.49174107, -4.43767491, -0.0184151,
+      67.53824207,
+    ],
+  },
+  sociability: {
+    average: 65.4412,
+    dev: 16.4854,
+    weights: [
+      0.00369191, -0.00136071, 0.90040811, 2.26404486, 1.02968978, 62.52954642,
+    ],
+  },
+  motivation: {
+    average: 50.3529,
+    dev: 17.4892,
+    weights: [
+      -0.00293698, 0.00061018, -10.54274205, -5.66083633, -0.20580375,
+      58.74841384,
+    ],
+  },
+};
+
+const categoriasNechapi = {
+  anger: [5, 7, 8, 10, 13, 17, 18, 19, 25, 26, 31, 35],
+  sensation: [1, 2, 20, 27, 28, 36, 37, 38, 40],
+  emotional: [3, 4, 6, 11, 12, 24, 32, 33, 34],
+  sociability: [14, 15, 16, 27],
+  motivation: [21, 22, 23, 29, 30, 39],
+};
+
+const getPuntuacionNechapi = (categoria, respuestas, tiempo) => {
+  let total = 0;
+  let puntuacion = 0;
+  categoriasNechapi[categoria].forEach((numero) => {
+    let respuesta = respuestas.find(
+      (resp) => parseInt(resp.index) === parseInt(numero)
+    );
+    total += 5;
+    if (respuesta) {
+      puntuacion += parseInt(respuesta[tiempo]);
+    }
+  });
+  return parseFloat(
+    (parseFloat((puntuacion / total).toFixed(6)) * 100).toFixed(4)
+  );
 };
 
 exports.createTest = async (req, res) => {
@@ -119,7 +165,8 @@ exports.searchTests = async (req, res) => {
   }
 };
 
-const getNechapiFeature = (weights, estimulos) => {
+const getNechapiFeature = (feature, estimulos) => {
+  const weights = feature.weights;
   let total = [];
   estimulos.forEach((estimulo) => {
     let result =
@@ -131,26 +178,71 @@ const getNechapiFeature = (weights, estimulos) => {
       weights[5];
     total.push(result);
   });
-  return total[0];
+
+  let result = 0.0;
+  total.forEach((value) => {
+    if (!isNaN(value)) {
+      result = parseFloat(result) + parseFloat(value);
+    }
+  });
+  let average = result / total.length;
+  return {
+    result: parseFloat(average.toFixed(4)),
+    average: feature.average,
+    dev: feature.dev,
+  };
 };
 
 exports.getAllPatientResults = async (req, res) => {
   const { params } = req;
   const { idPatient } = params;
   try {
+    const testApiUrl = process.env.TESTS_API;
+    const request = await axios.get(`${testApiUrl}/surveys`, {
+      params: {
+        idPatient: idPatient,
+      },
+    });
+    const survey = request.data.data;
     const results = await printExcel(idPatient);
     results.forEach((result) => {
       result.grupo = Math.ceil(Math.random() * 5);
     });
-    const anger = getNechapiFeature(weights.anger, results).toFixed(2);
-    const sensation = getNechapiFeature(weights.sensation, results).toFixed(2);
-    const emotional = getNechapiFeature(weights.emotional, results).toFixed(2);
-    const sociability = getNechapiFeature(weights.sociability, results).toFixed(
-      2
-    );
-    const motivation = getNechapiFeature(weights.motivation, results).toFixed(
-      2
-    );
+    const anger = getNechapiFeature(features.anger, results);
+    const sensation = getNechapiFeature(features.sensation, results);
+    const emotional = getNechapiFeature(features.emotional, results);
+    const sociability = getNechapiFeature(features.sociability, results);
+    const motivation = getNechapiFeature(features.motivation, results);
+    if (survey.length > 0) {
+      const current = survey[0];
+      anger.real = getPuntuacionNechapi("anger", current.questions, "before");
+      sensation.real = getPuntuacionNechapi(
+        "sensation",
+        current.questions,
+        "before"
+      );
+      emotional.real = getPuntuacionNechapi(
+        "emotional",
+        current.questions,
+        "before"
+      );
+      sociability.real = getPuntuacionNechapi(
+        "sociability",
+        current.questions,
+        "before"
+      );
+      motivation.real = getPuntuacionNechapi(
+        "motivation",
+        current.questions,
+        "before"
+      );
+    } else {
+      anger.real = 0;
+      sensation.real = 0;
+      emotional.real = 0;
+      sociability.real = 0;
+      motivation.real = 0;
+    }
     res.status(200).json({
       data: { anger, sensation, emotional, sociability, motivation },
     });
