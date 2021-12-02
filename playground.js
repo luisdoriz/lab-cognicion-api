@@ -297,6 +297,67 @@ const printExcel = async (idPatient) => {
   return estimulosFinales;
 };
 
+const getAllEstimulos = async () => {
+  let promises = [];
+  let simple = [];
+  let condicional = [];
+  let hanoi = [];
+  let flanker = [];
+  promises.push(
+    new Promise((resolve, reject) => {
+      getAtencionSimple().then((estimulos) => {
+        simple = estimulos;
+        resolve();
+      });
+    })
+  );
+  promises.push(
+    new Promise((resolve, reject) => {
+      getAtencionCondicional().then((estimulos) => {
+        condicional = estimulos;
+        resolve();
+      });
+    })
+  );
+  promises.push(
+    new Promise((resolve, reject) => {
+      getHanoi().then((movimientos) => {
+        hanoi = movimientos;
+        resolve();
+      });
+    })
+  );
+  promises.push(
+    new Promise((resolve, reject) => {
+      getFlanker().then((estimulos) => {
+        flanker = estimulos;
+        resolve();
+      });
+    })
+  );
+
+  await Promise.all(promises);
+  let estimulosFinales = [];
+  simple.forEach((estimulo) => {
+    estimulosFinales.push(estimulo);
+  });
+  condicional.forEach((estimulo) => {
+    estimulosFinales.push(estimulo);
+  });
+  hanoi.forEach((estimulo) => {
+    estimulosFinales.push(estimulo);
+  });
+  flanker.forEach((estimulo) => {
+    estimulosFinales.push(estimulo);
+  });
+  estimulosFinales.forEach((estimulo) => {
+    if (estimulo.error === undefined) {
+      estimulo.error = estimulo.correct ? 0 : 1;
+    }
+  });
+  return estimulosFinales;
+};
+
 getAllNechapis();
 
-module.exports = { printExcel };
+module.exports = { printExcel, getAllEstimulos };
