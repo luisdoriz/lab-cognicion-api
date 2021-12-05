@@ -2,8 +2,6 @@ const { default: axios } = require("axios");
 const testApiUrl = "https://lab-cognicion-tests-api.herokuapp.com/";
 const moment = require("moment");
 const XLSX = require("xlsx");
-const fs = require("fs");
-const { getFeatures } = require("./functions/training");
 
 const categoriasNechapi = {
   anger: [5, 7, 8, 10, 13, 17, 18, 19, 25, 26, 31, 35],
@@ -272,12 +270,18 @@ const printExcel = async (idPatient) => {
   await Promise.all(promises);
   let estimulosFinales = [];
   if (idPatient) {
-    simple = simple.filter((estimulo) => estimulo.idPatient === idPatient);
-    condicional = condicional.filter(
-      (estimulo) => estimulo.idPatient === idPatient
+    simple = simple.filter(
+      (estimulo) => parseInt(estimulo.idPatient) === parseInt(idPatient)
     );
-    hanoi = hanoi.filter((estimulo) => estimulo.idPatient === idPatient);
-    flanker = flanker.filter((estimulo) => estimulo.idPatient === idPatient);
+    condicional = condicional.filter(
+      (estimulo) => parseInt(estimulo.idPatient) === parseInt(idPatient)
+    );
+    hanoi = hanoi.filter(
+      (estimulo) => parseInt(estimulo.idPatient) === parseInt(idPatient)
+    );
+    flanker = flanker.filter(
+      (estimulo) => parseInt(estimulo.idPatient) === parseInt(idPatient)
+    );
   }
   simple.forEach((estimulo) => {
     estimulosFinales.push(estimulo);

@@ -3,7 +3,7 @@ const { Feature, Sequelize } = require("../models");
 
 const getFeatures = async () => {
   let features = await Feature.findAll({
-    order: [Sequelize.col("feature_number"), Sequelize.col("created_at")],
+    order: [Sequelize.col("feature_number"), Sequelize.col("createdAt")],
   });
   features = features.map((feature) => feature.toJSON());
   let result = {};

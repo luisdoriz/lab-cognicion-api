@@ -231,7 +231,6 @@ const calculateParams = async (req, res, next) => {
   try {
     const { method } = req.query;
     const features = await calculateFeatures(method);
-    return console.log(features);
     const promises = [];
     Object.keys(features).forEach((key, index) => {
       const current = features[key];
@@ -258,4 +257,11 @@ const calculateParams = async (req, res, next) => {
   }
 };
 
-module.exports = { getParams, getKmeans, calculateParams };
+module.exports = {
+  getParams,
+  getKmeans,
+  agregarKmeans,
+  calculateParams,
+  calculateFeatures,
+  prepararDatos,
+};

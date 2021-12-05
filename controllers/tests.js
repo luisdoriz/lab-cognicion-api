@@ -8,13 +8,13 @@ const {
   getByAccessUrlId,
 } = require("../actions/tests/read");
 const responses = require("../constants/responses");
-const { printExcel, getAllEstimulos } = require("../playground");
-const { features } = require("../constants/utils");
+const { printExcel } = require("../playground");
 const {
   getPuntuacionNechapi,
   getNechapiFeature,
-  getAllPatientTests,
 } = require("../functions/tests");
+const { getFeatures } = require("../functions/training");
+const { prepararDatos, agregarKmeans } = require("./training");
 
 exports.createTest = async (req, res) => {
   const { body } = req;
@@ -126,10 +126,10 @@ exports.getAllPatientResults = async (req, res) => {
       },
     });
     const survey = request.data.data;
-    const results = await printExcel(idPatient);
-    results.forEach((result) => {
-      result.grupo = Math.ceil(Math.random() * 5);
-    });
+    let results = await prepararDatos(idPatient);
+    //Varia dependiendo del metodo
+    results = await agregarKmeans(results);
+    const features = await getFeatures();
     const anger = getNechapiFeature(features.anger, results);
     const sensation = getNechapiFeature(features.sensation, results);
     const emotional = getNechapiFeature(features.emotional, results);
