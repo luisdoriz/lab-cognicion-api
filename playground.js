@@ -3,6 +3,7 @@ const testApiUrl = "https://lab-cognicion-tests-api.herokuapp.com/";
 const moment = require("moment");
 const XLSX = require("xlsx");
 const fs = require("fs");
+const { getFeatures } = require("./functions/training");
 
 const categoriasNechapi = {
   anger: [5, 7, 8, 10, 13, 17, 18, 19, 25, 26, 31, 35],
@@ -24,7 +25,9 @@ const getPuntuacionNechapi = (categoria, respuestas, tiempo) => {
       puntuacion += parseInt(respuesta[tiempo]);
     }
   });
-  return parseFloat((puntuacion / total).toFixed(2)) * 100;
+  return parseFloat(
+    (parseFloat((puntuacion / total).toFixed(2)) * 100).toFixed(4)
+  );
 };
 
 const getAllNechapis = () => {
@@ -52,7 +55,7 @@ const getAllNechapis = () => {
             survey.questions,
             "before"
           );
-          const motivacion = getPuntuacionNechapi(
+          const motivation = getPuntuacionNechapi(
             "motivation",
             survey.questions,
             "before"
@@ -68,18 +71,22 @@ const getAllNechapis = () => {
             sensation,
             emotional,
             sociability,
-            motivacion,
+            motivation,
           };
         }
         return null;
       })
       .filter((survey) => survey !== null);
-    const workbook = XLSX.utils.book_new();
-    const finalWorksheet = XLSX.utils.json_to_sheet(surveys);
-    XLSX.utils.book_append_sheet(workbook, finalWorksheet, "Surveys");
-    const fileName = "Nechapis";
-    XLSX.writeFile(workbook, `${__dirname}/${fileName}.xlsx`);
+    return surveys;
   });
+};
+
+const printNechapisExcel = (surveys) => {
+  const workbook = XLSX.utils.book_new();
+  const finalWorksheet = XLSX.utils.json_to_sheet(surveys);
+  XLSX.utils.book_append_sheet(workbook, finalWorksheet, "Surveys");
+  const fileName = "Nechapis";
+  XLSX.writeFile(workbook, `${__dirname}/${fileName}.xlsx`);
 };
 
 const getAllResults = async (idTestType) => {
@@ -229,7 +236,6 @@ const printExcel = async (idPatient) => {
   let condicional = [];
   let hanoi = [];
   let flanker = [];
-  let nechapi = [];
   promises.push(
     new Promise((resolve, reject) => {
       getAtencionSimple().then((estimulos) => {
@@ -265,18 +271,14 @@ const printExcel = async (idPatient) => {
 
   await Promise.all(promises);
   let estimulosFinales = [];
-  let currentSimple = simple.filter(
-    (estimulo) => estimulo.idPatient === idPatient
-  );
-  let currentCond = condicional.filter(
-    (estimulo) => estimulo.idPatient === idPatient
-  );
-  let currentHanoi = hanoi.filter(
-    (estimulo) => estimulo.idPatient === idPatient
-  );
-  let currentFlanker = flanker.filter(
-    (estimulo) => estimulo.idPatient === idPatient
-  );
+  if (idPatient) {
+    simple = simple.filter((estimulo) => estimulo.idPatient === idPatient);
+    condicional = condicional.filter(
+      (estimulo) => estimulo.idPatient === idPatient
+    );
+    hanoi = hanoi.filter((estimulo) => estimulo.idPatient === idPatient);
+    flanker = flanker.filter((estimulo) => estimulo.idPatient === idPatient);
+  }
   simple.forEach((estimulo) => {
     estimulosFinales.push(estimulo);
   });
@@ -358,6 +360,4 @@ const getAllEstimulos = async () => {
   return estimulosFinales;
 };
 
-getAllNechapis();
-
-module.exports = { printExcel, getAllEstimulos };
+module.exports = { printExcel, getAllNechapis, getAllEstimulos };

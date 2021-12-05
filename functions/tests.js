@@ -1,6 +1,4 @@
-const axios = require("axios");
 const { categoriasNechapi } = require("../constants/utils");
-const testApiUrl = process.env.TESTS_API;
 
 const getPuntuacionNechapi = (categoria, respuestas, tiempo) => {
   let total = 0;
@@ -34,12 +32,14 @@ const getNechapiFeature = (feature, estimulos) => {
   });
 
   let result = 0.0;
+  let count = 0;
   total.forEach((value) => {
     if (!isNaN(value)) {
       result = parseFloat(result) + parseFloat(value);
+      count++;
     }
   });
-  let average = result / total.length;
+  let average = result / count;
   return {
     result: parseFloat(average.toFixed(3)),
     average: feature.average,

@@ -67,7 +67,16 @@ exports.searchSurveys = async (req, res) => {
   if (!isAdmin || !admin) {
     query.idUser = idUser;
   }
+  if (isNaN(query.idPatient) || query.idPatient === "") {
+    delete query.idPatient;
+  }
   delete query.admin;
+  if (isNaN(query.type)) {
+    delete query.type;
+  }
+  if (query.date === "") {
+    delete query.date;
+  }
   try {
     const tests = await getSurveyByQuery(query);
     res.status(200).json({ data: tests });

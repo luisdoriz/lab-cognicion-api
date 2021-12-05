@@ -97,6 +97,15 @@ exports.searchTests = async (req, res) => {
     query.idUser = idUser;
   }
   delete query.admin;
+  if (isNaN(query.idPatient)) {
+    delete query.idPatient;
+  }
+  if (isNaN(query.type)) {
+    delete query.type;
+  }
+  if (query.date === "") {
+    delete query.date;
+  }
   try {
     const tests = await getTestByQuery(query);
     res.status(200).json({ data: tests });

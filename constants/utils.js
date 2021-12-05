@@ -46,4 +46,6 @@ const categoriasNechapi = {
   motivation: [21, 22, 23, 29, 30, 39],
 };
 
-module.exports = { features, categoriasNechapi };
+const labels = ["anger", "sensation", "emotional", "sociability", "motivation"];
+
+module.exports = { labels, features, categoriasNechapi };
