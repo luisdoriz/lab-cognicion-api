@@ -5,7 +5,7 @@ const {
   printExcel,
   getAllNechapis,
 } = require("../playground");
-const flaskApiUrl = "http://localhost:5000";
+const flaskApiUrl = process.env.FLASK_API_URL;
 const { labels } = require("../constants/utils");
 const models = require("../models");
 
