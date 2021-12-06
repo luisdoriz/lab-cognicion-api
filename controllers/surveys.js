@@ -74,8 +74,11 @@ exports.searchSurveys = async (req, res) => {
   if (isNaN(query.type)) {
     delete query.type;
   }
-  if (query.date === "") {
-    delete query.date;
+  if (query.startDate === "") {
+    delete query.startDate;
+  }
+  if (query.endDate === "") {
+    delete query.endDate;
   }
   try {
     const tests = await getSurveyByQuery(query);

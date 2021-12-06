@@ -12,7 +12,7 @@ const getTestByQuery = async (query) => {
       endDate = new Date();
     }
     start_date = new Date(query.startDate);
-    delete query.date;
+    delete query.startDate;
     query.createdAt = {
       [Op.between]: [start_date, endDate],
     };
