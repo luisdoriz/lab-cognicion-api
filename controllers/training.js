@@ -1,6 +1,6 @@
 const axios = require("axios");
 const { getAllEstimulos, calculateFeatures } = require("../functions/training");
-const flaskApiUrl = process.env.FLASK_API_URL;
+const flaskApiUrl = "http://67.205.147.30:5000";
 const { labels } = require("../constants/utils");
 const models = require("../models");
 

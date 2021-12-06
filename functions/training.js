@@ -1,7 +1,7 @@
 const { categoriasNechapi, labels } = require("../constants/utils");
 const { getNechapiFeature } = require("../functions/tests");
 const { Feature, Sequelize } = require("../models");
-const flaskApiUrl = process.env.FLASK_API_URL;
+const flaskApiUrl = "http://67.205.147.30:5000";
 const testApiUrl = process.env.TESTS_API;
 const moment = require("moment");
 const axios = require("axios");
@@ -512,7 +512,6 @@ const agregarCluster = async (estimulos, method) => {
 
 const agregarKmeans = async (datos) => {
   const separados = separarDatos(datos);
-  console.log(flaskApiUrl);
   const response = await axios
     .post(`${flaskApiUrl}/kmeans`, {
       ...separados,
