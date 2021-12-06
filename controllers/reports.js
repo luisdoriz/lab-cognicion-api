@@ -10,7 +10,10 @@ const parseMoves = (results, testType) => {
     if (!moves) return [];
     moves = moves.map((move) => ({
       ...move,
-      reaction: moment(move.timestamp_destino).diff(move.timestamp_origen),
+      reaction:
+        move.char && move.char !== null
+          ? moment(move.timestamp_destino).diff(move.timestamp_origen)
+          : 0,
     }));
     moves.forEach((move) => {
       delete move.timestamp_destino;
@@ -21,7 +24,10 @@ const parseMoves = (results, testType) => {
     if (!moves) return [];
     moves = moves.map((move) => ({
       ...move,
-      reaction: moment(move.clicked).diff(move.emitted),
+      reaction:
+        move.char && move.char !== null
+          ? moment(move.clicked).diff(move.emitted)
+          : 0,
     }));
     moves.forEach((move) => {
       delete move.clicked;
