@@ -37,7 +37,7 @@ const calculateParams = async (req, res, next) => {
   try {
     const { method } = req.query;
     const features = await calculateFeatures(method);
-    await loadFeatures();
+    await loadFeatures(features);
     res.status(200).send({ features });
   } catch (error) {
     console.log(error);
