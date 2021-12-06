@@ -7,6 +7,25 @@ const moment = require("moment");
 const axios = require("axios");
 const math = require("mathjs");
 
+const handleTraining = async (idPatient) => {
+  let results = await getAllResultsPaciente(idPatient);
+  if (results) {
+    let testSet = new Set();
+    results.forEach((result) => {
+      const { settings } = result;
+      if (settings) {
+        testSet.add(settings.idTestType);
+      }
+    });
+    testSet = Array.from(testSet);
+    if (testSet.length === 4) {
+      const features = await calculateFeatures("", true);
+      console.log(features);
+      //await loadFeatures(features);
+    }
+  }
+};
+
 const getPuntuacionNechapi = (categoria, respuestas, tiempo) => {
   let total = 0;
   let puntuacion = 0;
@@ -435,7 +454,6 @@ const computeWeights = async (estimulos) => {
         };
         calculateWeights(body).then((response) => {
           let { weights } = response.data;
-          console.log(weights);
           features[label] = {};
           features[label].weights = weights;
           resolve();
@@ -451,18 +469,21 @@ const calculateWeights = (body) => {
   return axios.post(`${flaskApiUrl}/linear`, body);
 };
 
-const calculateFeatures = async (method) => {
-  let nechapis = await getAllNechapis();
+const calculateFeatures = async (method, wave_nechapis) => {
   let estimulos = await prepararDatos();
   estimulos = limpiarEstimulos(estimulos);
-  nechapis = limpiarNechapis(nechapis);
-  estimulos = combinarEstimulosNechapis(estimulos, nechapis);
-  estimulos = limpiarEstimulos(estimulos);
-  estimulos = await agregarCluster(estimulos, method);
+  if (!wave_nechapis) {
+    let nechapis = await getAllNechapis();
+    nechapis = limpiarNechapis(nechapis);
+    estimulos = combinarEstimulosNechapis(estimulos, nechapis);
+    estimulos = limpiarEstimulos(estimulos);
+    estimulos = await agregarCluster(estimulos, method);
+  }
   estimulos = separarDatos(estimulos);
   const features = await computeWeights(estimulos);
   return features;
 };
+
 const separarDatos = (datos) => {
   const index = datos
     .map(({ index }) => index)
@@ -593,11 +614,34 @@ const getKmeans = async (req, res, next) => {
   }
 };
 
+const loadFeatures = async (features) => {
+  const promises = [];
+  Object.keys(features).forEach((key, index) => {
+    const current = features[key];
+    const { weights } = current;
+    promises.push(
+      models.Feature.create({
+        w0: weights[0],
+        w1: weights[1],
+        w2: weights[2],
+        w3: weights[3],
+        w4: weights[4],
+        b: weights[5],
+        feature: key,
+        feature_number: labels.indexOf(key) + 1,
+      })
+    );
+  });
+  await Promise.all(promises);
+};
+
 module.exports = {
   getKmeans,
   getFeatures,
+  loadFeatures,
   formatNechapi,
   prepararDatos,
+  handleTraining,
   agregarCluster,
   computeWeights,
   getAllEstimulos,

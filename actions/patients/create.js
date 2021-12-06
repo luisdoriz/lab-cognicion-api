@@ -8,7 +8,7 @@ const createPatient = async (body) => {
   damages.forEach(({ damageLocation }) => {
     Damage.create({
       damageLocation,
-      idUser: patient.id,
+      idPatient: patient.id,
     });
   });
   return patient;

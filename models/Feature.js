@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       w4: DataTypes.STRING,
       b: DataTypes.STRING,
       feature_number: DataTypes.INTEGER,
+      patients: DataTypes.INTEGER,
     },
     {}
   );

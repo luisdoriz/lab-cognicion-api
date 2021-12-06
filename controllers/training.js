@@ -1,8 +1,10 @@
 const axios = require("axios");
-const { getAllEstimulos, calculateFeatures } = require("../functions/training");
+const {
+  getAllEstimulos,
+  calculateFeatures,
+  loadFeatures,
+} = require("../functions/training");
 const flaskApiUrl = "http://67.205.147.30:5000";
-const { labels } = require("../constants/utils");
-const models = require("../models");
 
 const getParams = async (req, res, next) => {
   try {
@@ -35,24 +37,7 @@ const calculateParams = async (req, res, next) => {
   try {
     const { method } = req.query;
     const features = await calculateFeatures(method);
-    const promises = [];
-    Object.keys(features).forEach((key, index) => {
-      const current = features[key];
-      const { weights } = current;
-      promises.push(
-        models.Feature.create({
-          w0: weights[0],
-          w1: weights[1],
-          w2: weights[2],
-          w3: weights[3],
-          w4: weights[4],
-          b: weights[5],
-          feature: key,
-          feature_number: labels.indexOf(key) + 1,
-        })
-      );
-    });
-    await Promise.all(promises);
+    await loadFeatures();
     res.status(200).send({ features });
   } catch (error) {
     console.log(error);
