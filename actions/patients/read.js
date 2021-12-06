@@ -2,7 +2,7 @@ const models = require("../../models");
 
 const { Patient, Damage } = models;
 
-const pacienteExiste = (idUser, email) => {
+const pacienteExiste = async (idUser, email) => {
   const patient = await Patient.findOne({
     where: {
       idUser,
