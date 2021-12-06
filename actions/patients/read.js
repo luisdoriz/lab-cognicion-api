@@ -2,6 +2,16 @@ const models = require("../../models");
 
 const { Patient, Damage } = models;
 
+const pacienteExiste = (idUser, email) => {
+  const patient = await Patient.findOne({
+    where: {
+      idUser,
+      email,
+    },
+  });
+  return patient;
+};
+
 const findPatientsByQuery = async (query) =>
   Patient.findAll({
     where: { ...query, deletedAt: null },
@@ -17,4 +27,5 @@ const findPatientByQuery = async (query) =>
 module.exports = {
   findPatientByQuery,
   findPatientsByQuery,
+  pacienteExiste,
 };

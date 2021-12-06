@@ -4,6 +4,7 @@ const {
   updatePatient,
   deletePatient,
   findPatientByQuery,
+  pacienteExiste,
 } = require("../actions/patients");
 const responses = require("../constants/responses");
 const { getAllResultsPaciente } = require("../functions/training");
@@ -58,6 +59,10 @@ exports.postPatient = async (req, res) => {
   const { id: idUser } = body.user;
   try {
     body.idUser = idUser;
+    const existe = await pacienteExiste(idUser, body.email);
+    if (existe && existe !== null) {
+      return res.sendStatus(409);
+    }
     const data = await createPatient(body);
     res.status(200).json({ status: responses.SUCCESS_STATUS, data });
   } catch (error) {
