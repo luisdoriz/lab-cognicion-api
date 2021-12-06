@@ -6,6 +6,7 @@ const {
   findPatientByQuery,
 } = require("../actions/patients");
 const responses = require("../constants/responses");
+const { getAllResultsPaciente } = require("../functions/training");
 
 exports.getPatientById = async (req, res) => {
   const { params, body, query } = req;
@@ -19,7 +20,10 @@ exports.getPatientById = async (req, res) => {
     if (!isAdmin || !admin) {
       query.idUser = idUser;
     }
-    const patient = await findPatientByQuery(query);
+    let patient = await findPatientByQuery(query);
+    patient = patient.toJSON();
+    const results = await getAllResultsPaciente(id);
+    patient.results = results;
     if (patient === null) return res.sendStatus(404);
     res.status(200).json({ status: responses.SUCCESS_STATUS, data: patient });
   } catch (error) {

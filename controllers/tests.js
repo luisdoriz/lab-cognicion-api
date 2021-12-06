@@ -8,12 +8,20 @@ const {
   getByAccessUrlId,
 } = require("../actions/tests/read");
 const responses = require("../constants/responses");
+const { labels } = require("../constants/utils");
 const {
   getPuntuacionNechapi,
   getNechapiFeature,
 } = require("../functions/tests");
-const { getFeatures } = require("../functions/training");
-const { prepararDatos, agregarKmeans } = require("./training");
+const {
+  getFeatures,
+  prepararDatos,
+  agregarCluster,
+  combinarEstimulosNechapis,
+  limpiarEstimulos,
+  formatNechapi,
+  getStatsNechapis,
+} = require("../functions/training");
 
 exports.createTest = async (req, res) => {
   const { body } = req;
@@ -115,8 +123,9 @@ exports.searchTests = async (req, res) => {
 };
 
 exports.getAllPatientResults = async (req, res) => {
-  const { params } = req;
+  const { params, query } = req;
   const { idPatient } = params;
+  const { method } = query;
   try {
     const testApiUrl = process.env.TESTS_API;
     const request = await axios.get(`${testApiUrl}/surveys`, {
@@ -124,48 +133,79 @@ exports.getAllPatientResults = async (req, res) => {
         idPatient: idPatient,
       },
     });
-    const survey = request.data.data;
-    let results = await prepararDatos(idPatient);
-    //Varia dependiendo del metodo
-    results = await agregarKmeans(results);
-    const features = await getFeatures();
-    const anger = getNechapiFeature(features.anger, results);
-    const sensation = getNechapiFeature(features.sensation, results);
-    const emotional = getNechapiFeature(features.emotional, results);
-    const sociability = getNechapiFeature(features.sociability, results);
-    const motivation = getNechapiFeature(features.motivation, results);
-    if (survey.length > 0) {
-      const current = survey[0];
-      anger.real = getPuntuacionNechapi("anger", current.questions, "before");
-      sensation.real = getPuntuacionNechapi(
+    let surveys = request.data.data;
+    const prediction = {};
+    labels.forEach((key) => {
+      prediction[key] = {};
+    });
+    if (surveys.length > 0) {
+      const current = surveys[0];
+      prediction.anger.real = getPuntuacionNechapi(
+        "anger",
+        current.questions,
+        "before"
+      );
+      prediction.sensation.real = getPuntuacionNechapi(
         "sensation",
         current.questions,
         "before"
       );
-      emotional.real = getPuntuacionNechapi(
+      prediction.emotional.real = getPuntuacionNechapi(
         "emotional",
         current.questions,
         "before"
       );
-      sociability.real = getPuntuacionNechapi(
+      prediction.sociability.real = getPuntuacionNechapi(
         "sociability",
         current.questions,
         "before"
       );
-      motivation.real = getPuntuacionNechapi(
+      prediction.motivation.real = getPuntuacionNechapi(
         "motivation",
         current.questions,
         "before"
       );
     } else {
-      anger.real = 0;
-      sensation.real = 0;
-      emotional.real = 0;
-      sociability.real = 0;
-      motivation.real = 0;
+      prediction.anger.real = 0;
+      prediction.sensation.real = 0;
+      prediction.emotional.real = 0;
+      prediction.sociability.real = 0;
+      prediction.motivation.real = 0;
     }
+    surveys = surveys.map((survey) => formatNechapi(survey));
+    let results = await prepararDatos(idPatient);
+    results = combinarEstimulosNechapis(results, surveys);
+    results = limpiarEstimulos(results);
+    results = await agregarCluster(results, method);
+    const features = await getFeatures();
+    const stats = await getStatsNechapis();
+    prediction.anger = {
+      ...prediction.anger,
+      ...getNechapiFeature(features.anger, results),
+      ...stats.anger,
+    };
+    prediction.sensation = {
+      ...prediction.sensation,
+      ...getNechapiFeature(features.sensation, results),
+      ...stats.sensation,
+    };
+    prediction.emotional = {
+      ...prediction.emotional,
+      ...getNechapiFeature(features.emotional, results),
+      ...stats.emotional,
+    };
+    prediction.sociability = {
+      ...prediction.sociability,
+      ...getNechapiFeature(features.sociability, results),
+      ...stats.sociability,
+    };
+    prediction.motivation = {
+      ...prediction.motivation,
+      ...getNechapiFeature(features.motivation, results),
+      ...stats.motivation,
+    };
     res.status(200).json({
-      data: { anger, sensation, emotional, sociability, motivation },
+      data: prediction,
     });
   } catch (error) {
     console.log("Error", error);

@@ -5,6 +5,7 @@ const flaskApiUrl = "http://67.205.147.30:5000";
 const testApiUrl = process.env.TESTS_API;
 const moment = require("moment");
 const axios = require("axios");
+const math = require("mathjs");
 
 const getPuntuacionNechapi = (categoria, respuestas, tiempo) => {
   let total = 0;
@@ -23,49 +24,61 @@ const getPuntuacionNechapi = (categoria, respuestas, tiempo) => {
   );
 };
 
+const formatNechapi = (survey) => {
+  const anger = getPuntuacionNechapi("anger", survey.questions, "before");
+  const sensation = getPuntuacionNechapi(
+    "sensation",
+    survey.questions,
+    "before"
+  );
+  const emotional = getPuntuacionNechapi(
+    "emotional",
+    survey.questions,
+    "before"
+  );
+  const sociability = getPuntuacionNechapi(
+    "sociability",
+    survey.questions,
+    "before"
+  );
+  const motivation = getPuntuacionNechapi(
+    "motivation",
+    survey.questions,
+    "before"
+  );
+  survey.questions.forEach((question) => {
+    delete question.after;
+    question.before = parseInt(question.before);
+    question.idPatient = survey.idPatient;
+  });
+  return {
+    idPatient: survey.idPatient,
+    anger,
+    sensation,
+    emotional,
+    sociability,
+    motivation,
+  };
+};
+
+const getStatsNechapis = async () => {
+  let nechapis = await getAllNechapis();
+  const features = {};
+  labels.forEach((key) => {
+    let current = nechapis.map((nechapi) => nechapi[key]);
+    let average = math.mean(current);
+    let dev = math.std(current);
+    features[key] = { average, dev };
+  });
+  return features;
+};
+
 const getAllNechapis = () => {
   return axios.get(`${testApiUrl}/surveys`).then((res) => {
     const surveys = res.data.data
       .map((survey) => {
         if (survey.questions) {
-          const anger = getPuntuacionNechapi(
-            "anger",
-            survey.questions,
-            "before"
-          );
-          const sensation = getPuntuacionNechapi(
-            "sensation",
-            survey.questions,
-            "before"
-          );
-          const emotional = getPuntuacionNechapi(
-            "emotional",
-            survey.questions,
-            "before"
-          );
-          const sociability = getPuntuacionNechapi(
-            "sociability",
-            survey.questions,
-            "before"
-          );
-          const motivation = getPuntuacionNechapi(
-            "motivation",
-            survey.questions,
-            "before"
-          );
-          survey.questions.forEach((question) => {
-            delete question.after;
-            question.before = parseInt(question.before);
-            question.idPatient = survey.idPatient;
-          });
-          return {
-            idPatient: survey.idPatient,
-            anger,
-            sensation,
-            emotional,
-            sociability,
-            motivation,
-          };
+          return formatNechapi(survey);
         }
         return null;
       })
@@ -80,6 +93,14 @@ const printNechapisExcel = (surveys) => {
   XLSX.utils.book_append_sheet(workbook, finalWorksheet, "Surveys");
   const fileName = "Nechapis";
   XLSX.writeFile(workbook, `${__dirname}/${fileName}.xlsx`);
+};
+
+const getAllResultsPaciente = async (idPatient) => {
+  return axios.get(`${testApiUrl}/results`).then((res) => {
+    return res.data.data.filter(
+      (test) => parseInt(test.idPatient) === parseInt(idPatient)
+    );
+  });
 };
 
 const getAllResults = async (idTestType) => {
@@ -306,6 +327,7 @@ const prepararDatos = async (idPatient) => {
     }
     dato.correct = dato.correct ? 1 : 0;
   });
+  datos = limpiarEstimulos(datos);
   return datos;
 };
 
@@ -316,13 +338,6 @@ const getFeatures = async () => {
   features = features.map((feature) => feature.toJSON());
   let result = {};
   const numbers = [1, 2, 3, 4, 5];
-  const labels = [
-    "anger",
-    "sensation",
-    "emotional",
-    "sociability",
-    "motivation",
-  ];
   numbers.forEach((number) => {
     const current = features.find(
       (feature) => feature.feature_number === number
@@ -386,11 +401,12 @@ const combinarEstimulosNechapis = (estimulos, nechapis) => {
       (estimulo) => parseInt(estimulo.idPatient) === parseInt(nechapi.idPatient)
     );
     current.forEach((estimulo) => {
-      combinados.push({
+      const nuevo = {
         ...estimulo,
         ...nechapi,
         dominante: getNechapiDominante(nechapi),
-      });
+      };
+      combinados.push(nuevo);
     });
   });
   return combinados;
@@ -444,9 +460,7 @@ const calculateFeatures = async (method) => {
   estimulos = limpiarEstimulos(estimulos);
   estimulos = await agregarCluster(estimulos, method);
   estimulos = separarDatos(estimulos);
-  console.log(estimulos);
   const features = await computeWeights(estimulos);
-  console.log(features);
   return features;
 };
 const separarDatos = (datos) => {
@@ -500,44 +514,17 @@ const separarNechapis = (datos) => {
 };
 
 const agregarCluster = async (estimulos, method) => {
-  if (method === "kmeans") {
-    estimulos = await agregarKmeans(estimulos);
-  } else if (method === "bayes") {
-    estimulos = await agregarBayes(estimulos);
+  if (method !== "kmeans") {
+    estimulos = await agregarSupervisado(estimulos, method);
   } else {
-    estimulos = await agregarKnn(estimulos);
+    estimulos = await agregarKmeans(estimulos);
   }
   return estimulos;
 };
 
 const agregarKmeans = async (datos) => {
   const separados = separarDatos(datos);
-  const response = await axios
-    .post(`${flaskApiUrl}/kmeans`, {
-      ...separados,
-    })
-    .catch((error) => {
-      //console.log(error.response);
-    });
-  let { prediction } = response.data;
-  //Convertir a clusters numerados de 1 a 5
-  /**
-   * 1 = anger
-   * 2 = sensation
-   * 3 = emotional
-   * 4 = sociability
-   * 5 = motivation
-   */
-  prediction = prediction.map((value) => value + 1);
-  datos.forEach((dato, index) => {
-    dato.grupo = prediction[index];
-  });
-  return datos;
-};
-
-const agregarBayes = async (datos) => {
-  const separados = separarDatos(datos);
-  const response = await axios.post(`${flaskApiUrl}/bayes`, {
+  const response = await axios.post(`${flaskApiUrl}/kmeans`, {
     ...separados,
   });
   let { prediction } = response.data;
@@ -556,10 +543,24 @@ const agregarBayes = async (datos) => {
   return datos;
 };
 
-const agregarKnn = async (datos) => {
-  const separados = separarDatos(datos);
-  const response = await axios.post(`${flaskApiUrl}/knn`, {
+const agregarSupervisado = async (datos, method) => {
+  let estimulos = await getAllEstimulos();
+  estimulos = limpiarEstimulos(estimulos);
+  let nechapis = await getAllNechapis();
+  nechapis = limpiarNechapis(nechapis);
+  estimulos = combinarEstimulosNechapis(estimulos, nechapis);
+  estimulos = limpiarEstimulos(estimulos);
+  estimulos = estimulos.filter(
+    (estimulo) => parseInt(estimulo.idPatient) !== parseInt(datos[0].idPatient)
+  );
+  let separados = await separarDatos(estimulos);
+  const separadosPaciente = separarDatos(datos);
+  const response = await axios.post(`${flaskApiUrl}/${method}`, {
     ...separados,
+    indexPaciente: separadosPaciente.index,
+    reactionPaciente: separadosPaciente.reaction,
+    correctPaciente: separadosPaciente.correct,
+    errorPaciente: separadosPaciente.error,
   });
   let { prediction } = response.data;
   //Convertir a clusters numerados de 1 a 5
@@ -595,13 +596,18 @@ const getKmeans = async (req, res, next) => {
 module.exports = {
   getKmeans,
   getFeatures,
+  formatNechapi,
+  prepararDatos,
+  agregarCluster,
   computeWeights,
   getAllEstimulos,
   limpiarNechapis,
   limpiarEstimulos,
   calculateWeights,
+  getStatsNechapis,
   calculateFeatures,
   getNechapiDominante,
   getNechapiPrediction,
+  getAllResultsPaciente,
   combinarEstimulosNechapis,
 };
