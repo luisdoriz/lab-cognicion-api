@@ -8,7 +8,6 @@ const {
   getByAccessUrlId,
 } = require("../actions/tests/read");
 const responses = require("../constants/responses");
-const { printExcel } = require("../playground");
 const {
   getPuntuacionNechapi,
   getNechapiFeature,
