@@ -178,8 +178,10 @@ exports.getAllPatientResults = async (req, res) => {
     }
     surveys = surveys.map((survey) => formatNechapi(survey));
     let results = await prepararDatos(idPatient);
-    results = combinarEstimulosNechapis(results, surveys);
-    results = limpiarEstimulos(results);
+    if (surveys.length > 0) {
+      results = combinarEstimulosNechapis(results, surveys);
+      results = limpiarEstimulos(results);
+    }
     results = await agregarCluster(results, method);
     const features = await getFeatures();
     const stats = await getStatsNechapis();
