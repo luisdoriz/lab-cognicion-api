@@ -82,6 +82,13 @@ exports.putPatient = async (req, res) => {
     id,
   };
   try {
+    let existe = await pacienteExiste(idUser, body.email);
+    if (existe && existe !== null) {
+      existe = existe.toJSON();
+      if (existe.idPatient !== id) {
+        return res.sendStatus(409);
+      }
+    }
     const data = await updatePatient(ids, body);
     res.status(200).json({ status: responses.SUCCESS_STATUS, data });
   } catch (error) {
