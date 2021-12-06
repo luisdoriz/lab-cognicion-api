@@ -4,14 +4,14 @@ const models = require("../../models");
 const { Test, AccessUrl, TestType, Patient, User, Damage } = models;
 
 const getTestByQuery = async (query) => {
-  if ("date" in query) {
+  if ("startDate" in query) {
     if ("endDate" in query) {
       endDate = new Date(query.endDate);
       delete query.endDate;
     } else {
       endDate = new Date();
     }
-    start_date = new Date(query.date);
+    start_date = new Date(query.startDate);
     delete query.date;
     query.createdAt = {
       [Op.between]: [start_date, endDate],
