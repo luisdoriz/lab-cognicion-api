@@ -57,6 +57,7 @@ exports.getPatients = async (req, res) => {
 exports.postPatient = async (req, res) => {
   const { body } = req;
   const { id: idUser } = body.user;
+  delete body.id;
   try {
     body.idUser = idUser;
     const existe = await pacienteExiste(idUser, body.email);
