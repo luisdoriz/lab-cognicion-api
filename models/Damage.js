@@ -10,8 +10,8 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Damage.associate = function (models) {
-    Damage.belongsTo(models.User, {
-      foreignKey: "idUser",
+    Damage.belongsTo(models.Patient, {
+      foreignKey: "idPatient",
       as: "damages",
     });
   };

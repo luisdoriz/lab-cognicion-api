@@ -33,6 +33,9 @@ const getSurveyByQuery = async (query) => {
     {
       model: Patient,
       as: "patient",
+      where: {
+        deletedAt: null,
+      },
     },
   ];
   return Survey.findAll(query);

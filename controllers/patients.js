@@ -85,7 +85,7 @@ exports.putPatient = async (req, res) => {
     let existe = await pacienteExiste(idUser, body.email);
     if (existe && existe !== null) {
       existe = existe.toJSON();
-      if (existe.idPatient !== id) {
+      if (parseInt(existe.id) !== parseInt(id)) {
         return res.sendStatus(409);
       }
     }

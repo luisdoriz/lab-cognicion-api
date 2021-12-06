@@ -36,6 +36,9 @@ const getTestByQuery = async (query) => {
     {
       model: Patient,
       as: "patient",
+      where: {
+        deletedAt: null,
+      },
     },
   ];
   return Test.findAll(query);
