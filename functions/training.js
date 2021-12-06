@@ -1,6 +1,7 @@
 const { categoriasNechapi, labels } = require("../constants/utils");
 const { getNechapiFeature } = require("../functions/tests");
 const { Feature, Sequelize } = require("../models");
+const models = require("../models");
 const flaskApiUrl = "http://67.205.147.30:5000";
 const testApiUrl = process.env.TESTS_API;
 const moment = require("moment");
