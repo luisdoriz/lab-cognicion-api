@@ -9,11 +9,7 @@ exports.sendEmail = async (req, res) => {
   try {
     if (type == "test") {
       const test = await TestActions.getById(id);
-      const params = await getPublicTestUrl(test);
-      const testTypes = ["atencion", "atencion/condicional", "atencion/hemi"];
-      const url = `https://lab-cognicion.web.app/${
-        testTypes[test.type - 1]
-      }?${params}`;
+      const url = await getPublicTestUrl(test);
       sendEmailTest(email, url);
       res.status(200).json({ data: `Email sent correctly to: ${email}` });
     } else if (type == "survey") {

@@ -1,10 +1,12 @@
 const sgMail = require("@sendgrid/mail");
 
 const sendEmail = (to, text, html) => {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  sgMail.setApiKey(
+    "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"
+  );
   const msg = {
     to,
-    from: "luis.doriz@udem.edu", // Change to your verified sender
+    from: "juan.alvarezs@udem.edu", // Change to your verified sender
     subject: text,
     text,
     html,
