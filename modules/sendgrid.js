@@ -2,11 +2,11 @@ const sgMail = require("@sendgrid/mail");
 
 const sendEmail = (to, text, html) => {
   sgMail.setApiKey(
-    "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"
+    "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"
   );
   const msg = {
     to,
-    from: "juan.alvarezs@udem.edu", // Change to your verified sender
+    from: "orlando.torres@udem.edu", // Change to your verified sender
     subject: text,
     text,
     html,
