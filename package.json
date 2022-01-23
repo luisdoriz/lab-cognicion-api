@@ -33,6 +33,7 @@
     "pg": "^8.5.1",
     "sequelize": "^6.4.0",
     "sequelize-cli": "^6.2.0",
+    "stripe": "^8.195.0",
     "winston": "^3.3.3",
     "xlsx": "^0.17.1"
   }
