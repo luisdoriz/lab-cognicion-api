@@ -21,12 +21,36 @@ const crearMetodoPago = async (token_id) => {
   return paymentMethod;
 };
 
+const crearPrecioSimple = async (product_id, precio) => {
+  const price = await stripe.prices.create({
+    unit_amount: precio,
+    currency: "mxn",
+    product: product_id,
+  });
+  return price;
+};
+
 const crearSuscripcion = async (customer_id, title, price_id, metadata) => {
-  const subscription = await stripe.subscriptions.create({
+  const request = {
     customer: customer_id,
     items: [{ metadata: { title }, price: price_id }],
     metadata,
-  });
+  };
+  const { free_trial_length, discount_price } = metadata;
+  if (
+    free_trial_length &&
+    free_trial_length !== null &&
+    free_trial_length > 0
+  ) {
+    request.trial_period_days = free_trial_length;
+  }
+  if (discount_price && discount_price !== null) {
+    const { product_id } = metadata;
+    const price = await crearPrecioSimple(product_id, discount_price * 100);
+    request.add_invoice_items = [{ price: price.id }];
+    request.trial_period_days = 30;
+  }
+  const subscription = await stripe.subscriptions.create(request);
   return subscription;
 };
 
@@ -50,7 +74,7 @@ const crearIntentoPago = async (cantidad, metadata) => {
     description: metadata.package_name,
     metadata,
   });
-  return paymentIntent.client_secret;
+  return paymentIntent;
 };
 
 const crearProducto = async (nombre) => {
@@ -60,11 +84,11 @@ const crearProducto = async (nombre) => {
   return product;
 };
 
-const crearPrecio = async (product_id, precio) => {
+const crearPrecio = async (product_id, precio, interval, period) => {
   const price = await stripe.prices.create({
     unit_amount: precio,
     currency: "mxn",
-    recurring: { interval: "month" },
+    recurring: { interval: period, interval_count: interval },
     product: product_id,
   });
   return price;
@@ -81,8 +105,8 @@ const crearSesion = async (price_id, client_reference_id) => {
     ],
     client_reference_id: client_reference_id + " " + price_id,
     mode: "subscription",
-    success_url: "https://toroinmobiliario.com/thankyou",
-    cancel_url: "https://toroinmobiliario.com/membresias",
+    success_url: "https://lab-cognicion.web.app/gracias",
+    cancel_url: "https://lab-cognicion.web.app/memberships",
   });
   return session;
 };
@@ -98,8 +122,8 @@ const crearSesionPago = async (price_id, client_reference_id) => {
     ],
     client_reference_id: client_reference_id + " " + price_id,
     mode: "payment",
-    success_url: "https://toroinmobiliario.com/thankyou",
-    cancel_url: "https://toroinmobiliario.com/membresias",
+    success_url: "https://lab-cognicion.web.app/gracias",
+    cancel_url: "https://lab-cognicion.web.app/memberships",
   });
   return session;
 };
@@ -134,7 +158,6 @@ const createSubscriptionSchedule = async (
   price_id,
   start_date
 ) => {
-  console.log(start_date);
   const subscriptionSchedule = await stripe.subscriptions.create({
     customer: customer_id,
     billing_cycle_anchor: start_date,
@@ -147,10 +170,25 @@ const createSubscriptionSchedule = async (
   return subscriptionSchedule;
 };
 
+const createCustomer = async (email, name) => {
+  const customer = await stripe.customers.create({
+    email,
+    name,
+  });
+  return customer;
+};
+
+const findCustomerByStripeId = async (stripe_id) => {
+  const customer = await stripe.customers.retrieve(stripe_id);
+  return customer;
+};
+
 module.exports = {
   crearCargo,
   crearSesion,
   crearPrecio,
+  createCustomer,
+  findCustomerByStripeId,
   crearProducto,
   crearMetodoPago,
   crearSesionPago,
