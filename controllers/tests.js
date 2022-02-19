@@ -56,7 +56,6 @@ exports.postResult = async (req, res) => {
     delete new_body.idAccessUrl;
     delete new_body.token;
     const request = await axios.post(`${testApiUrl}/results`, new_body);
-    handleTraining(new_body.idPatient);
     res.status(200).json(request.data);
   } catch (error) {
     console.log("Error: ", error);
