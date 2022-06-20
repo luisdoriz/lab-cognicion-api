@@ -6,6 +6,7 @@ const {
   getUserTest,
   getTestByQuery,
   getByAccessUrlId,
+  getById,
 } = require("../actions/tests/read");
 const responses = require("../constants/responses");
 const { labels } = require("../constants/utils");
@@ -230,6 +231,7 @@ exports.getResult = async (req, res) => {
     const testApiUrl = process.env.TESTS_API;
     url = `${testApiUrl}/results?idTest=${idTest}`;
     const request = await axios.get(url);
+    console.log(idTest);
     const settings = await axios.get(`${testApiUrl}/settings`, {
       params: { idTest },
     });

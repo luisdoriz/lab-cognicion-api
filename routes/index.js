@@ -9,6 +9,7 @@ const TrainingRoutes = require("./training");
 const TestTypesRoutes = require("./testTypes");
 const MembershipsRoutes = require("./memberships");
 const PaymentsRoutes = require("./payments");
+const MultiTestsRoutes = require("./multitest");
 
 module.exports = (app, io) => {
   app.get("/", (req, res) => {
@@ -25,4 +26,5 @@ module.exports = (app, io) => {
   app.use("/testTypes", TestTypesRoutes);
   app.use("/memberships", MembershipsRoutes);
   app.use("/payments", PaymentsRoutes);
+  app.use("/multitests", MultiTestsRoutes);
 };

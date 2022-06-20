@@ -1,15 +1,37 @@
 "use strict";
-const bcrypt = require("bcryptjs");
-
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define(
-    "User",
+  class User extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+      this.belongsTo(models.UserType, {
+        foreignKey: "idUserType",
+      });
+      this.hasMany(models.Test, {
+        as: "tests",
+        foreignKey: "idUser",
+      });
+      this.hasMany(models.Payment, {
+        as: "payments",
+        foreignKey: "idUser",
+      });
+      this.hasMany(models.Patient, {
+        as: "patients",
+        foreignKey: "idUser",
+      });
+    }
+  }
+  User.init(
     {
       name: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      profession: DataTypes.STRING,
       email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -18,47 +40,22 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      profession: DataTypes.STRING,
+      uid: DataTypes.STRING,
       institution: DataTypes.STRING,
       birthDate: DataTypes.DATE,
       country: DataTypes.STRING,
       scholarship: DataTypes.STRING,
-      logo: DataTypes.STRING,
       token: DataTypes.STRING,
-      isAdmin: {
-        type: DataTypes.BOOLEAN,
-        default: false,
-      },
       stripe_id: DataTypes.STRING,
-      deletedAt: DataTypes.DATE,
+      idUserType: DataTypes.INTEGER,
     },
     {
+      sequelize,
+      modelName: "User",
+      tableName: "Users",
       paranoid: true,
     }
   );
-  User.associate = function (models) {
-    User.hasMany(models.Test, {
-      as: "tests",
-      foreignKey: "idUser",
-    });
-    User.hasMany(models.Payment, {
-      as: "payments",
-      foreignKey: "idUser",
-    });
-    User.hasMany(models.Patient, {
-      as: "patients",
-      foreignKey: "idUser",
-    });
-  };
-  User.beforeCreate(async (model) => {
-    const hash = await bcrypt.hash(model.password, 10);
-    model.password = hash;
-  });
-  User.beforeUpdate(async (model) => {
-    if (model.changed("password")) {
-      const hash = await bcrypt.hash(model.password, 10);
-      model.password = hash;
-    }
-    return model;
-  });
   return User;
 };

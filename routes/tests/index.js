@@ -12,9 +12,9 @@ results.put("/results", auth.valid, TestsController.putResult);
 
 // GET
 results.get("/", auth.valid, TestsController.getResults);
+results.get("/:id", TestsController.getResult);
 results.get("/patient/:idPatient", TestsController.getAllPatientResults);
 results.get("/search", auth.valid, TestsController.searchTests);
 results.get("/fiability", auth.valid, TestsController.getFiabilityTest);
-results.get("/:id", auth.valid, TestsController.getResult);
 
 module.exports = results;
