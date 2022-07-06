@@ -13,7 +13,7 @@ patients.get("/:id", auth.valid, PatientsController.getPatientById);
 patients.put("/:id", auth.valid, PatientsController.putPatient);
 
 // POST
-patients.post("/", auth.valid, PatientsController.postPatient);
+patients.post("/", PatientsController.postPatient);
 
 // POST
 patients.delete("/:id", auth.valid, PatientsController.deletePatient);

@@ -17,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
         as: "surveys",
         foreignKey: "idMultiTest",
       });
+      this.belongsTo(models.User, {
+        as: "user",
+        foreignKey: "idUser",
+      });
     }
   }
   MultiTest.init(
@@ -27,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
       },
       name: DataTypes.STRING,
+      idUser: DataTypes.INTEGER,
     },
     {
       sequelize,

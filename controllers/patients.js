@@ -56,13 +56,20 @@ exports.getPatients = async (req, res) => {
 
 exports.postPatient = async (req, res) => {
   const { body } = req;
-  const { id: idUser } = body.user;
+  let idUser;
+  if (body.user) {
+    idUser = body.user.id;
+  } else if (body.idUser) {
+    idUser = body.idUser;
+  }
   delete body.id;
   try {
     body.idUser = idUser;
-    const existe = await pacienteExiste(idUser, body.email);
-    if (existe && existe !== null) {
-      return res.sendStatus(409);
+    if (body.email && body.email !== "") {
+      const existe = await pacienteExiste(idUser, body.email);
+      if (existe && existe !== null) {
+        return res.sendStatus(409);
+      }
     }
     const data = await createPatient(body);
     res.status(200).json({ status: responses.SUCCESS_STATUS, data });

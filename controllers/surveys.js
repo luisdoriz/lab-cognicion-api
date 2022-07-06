@@ -12,7 +12,9 @@ exports.postSurvey = async (req, res) => {
   const { body } = req;
   try {
     const new_body = body;
-    new_body.idUser = new_body.user.id;
+    if (new_body.user) {
+      new_body.idUser = new_body.user.id;
+    }
     delete new_body.user;
     const user_test = await createSurvey(new_body);
     res.status(200).json({ data: user_test });
@@ -91,10 +93,17 @@ exports.searchSurveys = async (req, res) => {
 
 exports.getSurvey = async (req, res) => {
   const { params, body, query } = req;
-  const { id: idUser, isAdmin } = body.user;
+  let idUser;
+  let isAdmin;
+  if (body.user) {
+    idUser = body.user.id;
+    isAdmin = body.user.isAdmin;
+  } else {
+    idUser = body.idUser;
+    isAdmin = false;
+  }
   const { id: idSurvey } = params;
   const { admin = false } = query;
-
   try {
     const survey = await getUserSurvey(idSurvey);
     const testApiUrl = process.env.TESTS_API;

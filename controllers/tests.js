@@ -22,9 +22,6 @@ const {
   limpiarEstimulos,
   formatNechapi,
   getStatsNechapis,
-  getAllResultsPaciente,
-  loadFeatures,
-  calculateFeatures,
 } = require("../functions/training");
 
 exports.createTest = async (req, res) => {
@@ -32,10 +29,14 @@ exports.createTest = async (req, res) => {
   try {
     const testApiUrl = process.env.TESTS_API;
     const new_body = body;
-    new_body.idUser = new_body.user.id;
+    if (new_body.user) {
+      new_body.idUser = new_body.user.id;
+    }
     delete new_body.user;
     const user_test = await createTest(new_body);
     new_body.idTest = user_test.id;
+    delete new_body.testType;
+    delete new_body._id;
     await axios.post(`${testApiUrl}/settings`, new_body);
     await findPatientByQuery({ id: new_body.idPatient });
     res.status(200).json({ data: user_test });
@@ -231,7 +232,6 @@ exports.getResult = async (req, res) => {
     const testApiUrl = process.env.TESTS_API;
     url = `${testApiUrl}/results?idTest=${idTest}`;
     const request = await axios.get(url);
-    console.log(idTest);
     const settings = await axios.get(`${testApiUrl}/settings`, {
       params: { idTest },
     });
