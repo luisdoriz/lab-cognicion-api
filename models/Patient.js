@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
       q2: DataTypes.BOOLEAN,
       q3: DataTypes.BOOLEAN,
       q4: DataTypes.BOOLEAN,
+      q5: DataTypes.BOOLEAN,
       deletedAt: DataTypes.DATE,
     },
     {}

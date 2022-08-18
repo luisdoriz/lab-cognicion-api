@@ -33,6 +33,24 @@ exports.getPatientById = async (req, res) => {
   }
 };
 
+exports.getPatientByEmail = async (req, res) => {
+  try {
+    let email = req.query.email;
+    let idUser = req.query.idUser;
+    let patient = await findPatientsByQuery({ email, idUser });
+    if (patient.length === 0) {
+      return res.sendStatus(404);
+    }
+    patient = patient[0];
+    res
+      .status(200)
+      .json({ status: responses.SUCCESS_STATUS, data: { patient } });
+  } catch (error) {
+    console.log("Error: ", error);
+    res.status(500).json({ status: responses.INTERNAL_ERROR, error });
+  }
+};
+
 exports.getPatients = async (req, res) => {
   const { body, query } = req;
   const { admin = false } = query;
@@ -59,7 +77,8 @@ exports.postPatient = async (req, res) => {
   let idUser;
   if (body.user) {
     idUser = body.user.id;
-  } else if (body.idUser) {
+  }
+  if (!idUser) {
     idUser = body.idUser;
   }
   delete body.id;
@@ -68,7 +87,7 @@ exports.postPatient = async (req, res) => {
     if (body.email && body.email !== "") {
       const existe = await pacienteExiste(idUser, body.email);
       if (existe && existe !== null) {
-        return res.sendStatus(409);
+        return res.status(409).send({ data: { paciente: existe } });
       }
     }
     const data = await createPatient(body);
@@ -80,7 +99,12 @@ exports.postPatient = async (req, res) => {
 };
 
 exports.putPatient = async (req, res) => {
-  const { id: idUser } = req.body.user;
+  let idUser;
+  if (req.body.user) {
+    idUser = req.body.user;
+  } else if (req.body.idUser) {
+    idUser = req.body.idUser;
+  }
   const { id } = req.params;
   delete req.body.user;
   const body = { ...req.body };
@@ -89,13 +113,6 @@ exports.putPatient = async (req, res) => {
     id,
   };
   try {
-    let existe = await pacienteExiste(idUser, body.email);
-    if (existe && existe !== null) {
-      existe = existe.toJSON();
-      if (parseInt(existe.id) !== parseInt(id)) {
-        return res.sendStatus(409);
-      }
-    }
     const data = await updatePatient(ids, body);
     res.status(200).json({ status: responses.SUCCESS_STATUS, data });
   } catch (error) {

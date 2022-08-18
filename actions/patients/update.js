@@ -6,20 +6,21 @@ const updatePatient = async (ids, body) => {
   const { damages } = body;
   const patient = await Patient.update(body, { where: ids });
   const promises = [];
-  console.log(damages);
-  damages.forEach(({ id, damageLocation }) => {
-    if (isNaN(id)) {
-      if (String(id).includes("d")) {
-        promises.push(
-          Damage.destroy({ where: { id: String(id).split("d")[1] } })
-        );
+  if (Array.isArray(damages)) {
+    damages.forEach(({ id, damageLocation }) => {
+      if (isNaN(id)) {
+        if (String(id).includes("d")) {
+          promises.push(
+            Damage.destroy({ where: { id: String(id).split("d")[1] } })
+          );
+        } else {
+          promises.push(Damage.create({ damageLocation, idPatient: ids.id }));
+        }
       } else {
-        promises.push(Damage.create({ damageLocation, idPatient: ids.id }));
+        promises.push(Damage.update({ damageLocation }, { where: { id } }));
       }
-    } else {
-      promises.push(Damage.update({ damageLocation }, { where: { id } }));
-    }
-  });
+    });
+  }
   await Promise.all(promises);
   return patient;
 };

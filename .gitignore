@@ -25,3 +25,5 @@ node_modules/
 
 # TernJS port file
 node_modules
+
+ecosystem.config.js
