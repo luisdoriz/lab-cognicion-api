@@ -1,6 +1,8 @@
 const models = require("../models");
+const axios = require("axios");
 
-const { MultiTest, Test, TestType, Survey, SurveyType, AccessUrl } = models;
+const { MultiTest, Test, TestType, Survey, SurveyType, AccessUrl, Patient } =
+  models;
 
 const getAllMultiTests = async (req, res, next) => {
   try {
@@ -95,4 +97,82 @@ const getMultiTestPatient = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllMultiTests, getMultiTestPatient, getMultiTest };
+const getMultiTestReport = async (req, res, next) => {
+  try {
+    const { idMultiTest } = req.params;
+    let tests = await Test.findAll({
+      where: {
+        idMultiTest,
+      },
+      include: [{ model: Patient, required: true, as: "patient" }],
+    });
+    const testApiUrl = process.env.TESTS_API;
+    const promises = [];
+    tests = tests.map((test) => test.toJSON());
+    let processed = [];
+    tests.forEach((test) => {
+      const promise = new Promise((resolve, reject) => {
+        let url = `${testApiUrl}/results?idTest=${test.id}`;
+        axios
+          .get(url)
+          .then((request) => {
+            const { data } = request.data;
+            let results = {};
+            if (data.length > 0) {
+              results = data[0];
+            }
+            let currentTest = { ...test, ...results };
+            processed.push(currentTest);
+            resolve();
+          })
+          .catch((error) => {
+            console.log(error);
+            reject(error);
+          });
+      });
+      promises.push(promise);
+    });
+    await Promise.all(promises);
+    processed = processed.map((test) => {
+      let current = { ...test };
+      Object.keys(current).forEach((key) => {
+        if (key === "accessUrl") {
+          delete current[key];
+        } else if (
+          typeof current[key] === "object" &&
+          !Array.isArray(current[key])
+        ) {
+          current = { ...current, ...current[key] };
+          delete current[key];
+        }
+      });
+      return current;
+    });
+    processed = processed.map((test) => {
+      let current = { ...test };
+      Object.keys(current).forEach((key) => {
+        if (key === "accessUrl") {
+          delete current[key];
+        } else if (
+          typeof current[key] === "object" &&
+          !Array.isArray(current[key])
+        ) {
+          current = { ...current, ...current[key] };
+          delete current[key];
+        }
+      });
+      return current;
+    });
+    res.status(200).send({ tests: processed });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+module.exports = {
+  getAllMultiTests,
+  getMultiTestPatient,
+  getMultiTest,
+  getMultiTestReport,
+};
