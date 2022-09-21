@@ -1,6 +1,21 @@
 const models = require("../models");
 const axios = require("axios");
-
+const {
+  getResultadoTargets,
+  getTiempoReaccion,
+  getResultadoTargetsCondicional,
+  getConteoErrores,
+  getConteoRepetidos,
+  getTiempoPromedioReflexion,
+  getTiempoPromedio,
+  getEstimulosResults,
+  getTiempoReaccionStroop,
+  getTargetResult,
+  getAciertosCondicional,
+  formatTestResults,
+  formatSummaryTestResults,
+} = require("../functions/tests");
+const testApiUrl = process.env.TESTS_API;
 const { MultiTest, Test, TestType, Survey, SurveyType, AccessUrl, Patient } =
   models;
 
@@ -100,70 +115,41 @@ const getMultiTestPatient = async (req, res, next) => {
 const getMultiTestReport = async (req, res, next) => {
   try {
     const { idMultiTest } = req.params;
-    let tests = await Test.findAll({
-      where: {
-        idMultiTest,
-      },
-      include: [{ model: Patient, required: true, as: "patient" }],
+    let patients = await Patient.findAll({
+      include: [
+        {
+          model: Test,
+          as: "tests",
+          where: {
+            idMultiTest,
+          },
+        },
+      ],
     });
-    const testApiUrl = process.env.TESTS_API;
+    patients = patients.map((current) => current.toJSON());
     const promises = [];
-    tests = tests.map((test) => test.toJSON());
-    let processed = [];
-    tests.forEach((test) => {
-      const promise = new Promise((resolve, reject) => {
-        let url = `${testApiUrl}/results?idTest=${test.id}`;
-        axios
-          .get(url)
-          .then((request) => {
-            const { data } = request.data;
-            let results = {};
-            if (data.length > 0) {
-              results = data[0];
-            }
-            let currentTest = { ...test, ...results };
-            processed.push(currentTest);
-            resolve();
+    patients.forEach((patient) => {
+      let tests = patient.tests;
+      tests.forEach((currentTest) => {
+        promises.push(
+          new Promise((resolve, reject) => {
+            axios
+              .get(`${testApiUrl}/results?idTest=${currentTest.id}`)
+              .then((result) => {
+                let results = result.data.data[0];
+                currentTest.results = formatSummaryTestResults(
+                  results,
+                  currentTest.type
+                );
+                resolve();
+              })
+              .catch(reject);
           })
-          .catch((error) => {
-            console.log(error);
-            reject(error);
-          });
+        );
       });
-      promises.push(promise);
     });
     await Promise.all(promises);
-    processed = processed.map((test) => {
-      let current = { ...test };
-      Object.keys(current).forEach((key) => {
-        if (key === "accessUrl") {
-          delete current[key];
-        } else if (
-          typeof current[key] === "object" &&
-          !Array.isArray(current[key])
-        ) {
-          current = { ...current, ...current[key] };
-          delete current[key];
-        }
-      });
-      return current;
-    });
-    processed = processed.map((test) => {
-      let current = { ...test };
-      Object.keys(current).forEach((key) => {
-        if (key === "accessUrl") {
-          delete current[key];
-        } else if (
-          typeof current[key] === "object" &&
-          !Array.isArray(current[key])
-        ) {
-          current = { ...current, ...current[key] };
-          delete current[key];
-        }
-      });
-      return current;
-    });
-    res.status(200).send({ tests: processed });
+    res.status(200).send({ patients });
   } catch (error) {
     console.log(error);
     next(error);
