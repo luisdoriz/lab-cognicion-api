@@ -1,23 +1,11 @@
 const models = require("../models");
 const axios = require("axios");
-const {
-  getResultadoTargets,
-  getTiempoReaccion,
-  getResultadoTargetsCondicional,
-  getConteoErrores,
-  getConteoRepetidos,
-  getTiempoPromedioReflexion,
-  getTiempoPromedio,
-  getEstimulosResults,
-  getTiempoReaccionStroop,
-  getTargetResult,
-  getAciertosCondicional,
-  formatTestResults,
-  formatSummaryTestResults,
-} = require("../functions/tests");
+const { formatSummaryTestResults } = require("../functions/tests");
 const testApiUrl = process.env.TESTS_API;
 const { MultiTest, Test, TestType, Survey, SurveyType, AccessUrl, Patient } =
   models;
+const XLSX = require("xlsx");
+const moment = require("moment");
 
 const getAllMultiTests = async (req, res, next) => {
   try {
@@ -128,8 +116,21 @@ const getMultiTestReport = async (req, res, next) => {
     });
     patients = patients.map((current) => current.toJSON());
     const promises = [];
+    let excludeCols = [
+      "drugsConsumption",
+      "drugsTreatment",
+      "whichDrugs",
+      "antecedent",
+      "birthDate",
+      "deletedAt",
+      "updatedAt",
+      "dose",
+    ];
     patients.forEach((patient) => {
       let tests = patient.tests;
+      excludeCols.forEach((key) => {
+        delete patient[key];
+      });
       tests.forEach((currentTest) => {
         promises.push(
           new Promise((resolve, reject) => {
@@ -149,7 +150,51 @@ const getMultiTestReport = async (req, res, next) => {
       });
     });
     await Promise.all(promises);
-    res.status(200).send({ patients });
+    patients.forEach((patient) => {
+      let tests = patient.tests;
+      tests.sort((a, b) => (a.type < b.type ? -1 : 1));
+      let numberGroups = tests.filter((test) => test.type === 1).length;
+      let types = new Set();
+      let processed = new Set();
+      tests.forEach((test) => types.add(test.type));
+      let groups = [];
+      for (let i = 0; i < numberGroups; i++) {
+        if (!Array.isArray(groups[i])) {
+          groups[i] = [];
+        }
+        types.forEach((type) => {
+          let current = tests.find(
+            (test) => test.type === type && !processed.has(test.id)
+          );
+          if (current) {
+            groups[i].push(current.id);
+            processed.add(current.id);
+          }
+        });
+      }
+      patient.groups = groups;
+      groups.forEach((group) => {
+        group.forEach((idTest) => {
+          let current = patient.tests.find((test) => test.id === idTest);
+          if (current.results) {
+            Object.keys(current.results).forEach((key) => {
+              patient[key] = current.results[key];
+            });
+          }
+        });
+      });
+      delete patient.tests;
+      delete patient.groups;
+    });
+    const workbook = XLSX.utils.book_new();
+    const patientsWS = XLSX.utils.json_to_sheet(patients);
+    XLSX.utils.book_append_sheet(workbook, patientsWS, "Pacientes");
+    const fileName = `MultiTestReport_${idMultiTest}_${moment().format(
+      "YYYY-MM-DD_HH:mm"
+    )}`;
+    const filePath = `${__dirname}/files/${fileName}.xlsx`;
+    XLSX.writeFile(workbook, `${__dirname}/files/${fileName}.xlsx`);
+    res.sendFile(filePath);
   } catch (error) {
     console.log(error);
     next(error);

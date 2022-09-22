@@ -47,14 +47,14 @@ const formatSummaryTestResults = (results, type) => {
       );
       let estimulos = results.targets.length;
       return {
-        estimulos,
-        aciertos,
-        errores,
-        omisionesCorrectas,
-        omisionesIncorrectas,
-        clicksCorrectos,
-        clicksIncorrectos,
-        tiempoReaccion,
+        estimulosSimple: estimulos,
+        aciertosSimple: aciertos,
+        erroresSimple: errores,
+        omisionesCorrectasSimple: omisionesCorrectas,
+        omisionesIncorrectasSimple: omisionesIncorrectas,
+        clicksCorrectosSimple: clicksCorrectos,
+        clicksIncorrectosSimple: clicksIncorrectos,
+        tiempoReaccionSimple: tiempoReaccion,
       };
     }
     //Condicional
@@ -106,14 +106,14 @@ const formatSummaryTestResults = (results, type) => {
       let tiempoReaccion = getTiempoReaccion(aciertosCondicional);
       let estimulos = results.targets.length;
       return {
-        estimulos,
-        aciertos,
-        errores,
-        omisionesCorrectas,
-        omisionesIncorrectas,
-        clicksCorrectos,
-        clicksIncorrectos,
-        tiempoReaccion,
+        estimulosCondicional: estimulos,
+        aciertosCondicional: aciertos,
+        erroresCondicional: errores,
+        omisionesCorrectasCondicional: omisionesCorrectas,
+        omisionesIncorrectasCondicional: omisionesIncorrectas,
+        clicksCorrectosCondicional: clicksCorrectos,
+        clicksIncorrectosCondicional: clicksIncorrectos,
+        tiempoReaccionCondicional: tiempoReaccion,
       };
     }
     //Torre de Hanoi
@@ -130,14 +130,14 @@ const formatSummaryTestResults = (results, type) => {
         movements.filter((movement) => !movement.error)
       );
       return {
-        movimientos: movements.length,
-        aciertos,
-        errores1,
-        errores2,
-        errores3,
-        repetidos,
-        tiempoPromedio,
-        tiempoReflexion,
+        movimientosHanoi: movements.length,
+        aciertosHanoi: aciertos,
+        errores1Hanoi: errores1,
+        errores2Hanoi: errores2,
+        errores3Hanoi: errores3,
+        repetidosHanoi: repetidos,
+        tiempoPromedioHanoi: tiempoPromedio,
+        tiempoReflexionHanoi: tiempoReflexion,
       };
     }
     case 6: {
@@ -154,14 +154,14 @@ const formatSummaryTestResults = (results, type) => {
         estimulos.filter((estimulo) => estimulo.clicked === estimulo.display)
       );
       return {
-        estimulos: estimulos.length,
+        estimulosStroop: estimulos.length,
         congruentes: allCongruentes,
         incongruentes: allIncongruentes,
         aciertosCongruentes: congruentes,
         erroresCongruentes,
         aciertosIncongruentes: incongruentes,
         erroresIncongruentes,
-        tiempoReaccion,
+        tiempoReaccionStroop: tiempoReaccion,
       };
     }
     default:
