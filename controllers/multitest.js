@@ -166,7 +166,6 @@ const getMultiTestReport = async (req, res, next) => {
       let processed = new Set();
       tests.forEach((test) => types.add(test.type));
       let groups = [];
-      console.log(numberGroups);
       for (let i = 0; i < numberGroups; i++) {
         if (!Array.isArray(groups[i])) {
           groups[i] = [];
