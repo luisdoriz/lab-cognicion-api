@@ -113,6 +113,7 @@ const getMultiTestReport = async (req, res, next) => {
           },
         },
       ],
+      limit: 10,
     });
     patients = patients.map((current) => current.toJSON());
     let pageSize = 10;
@@ -157,6 +158,7 @@ const getMultiTestReport = async (req, res, next) => {
       });
       await Promise.all(promises);
     }
+    let patientResult = [];
     patients.forEach((patient) => {
       let tests = patient.tests;
       tests.sort((a, b) => (a.type < b.type ? -1 : 1));
@@ -165,6 +167,7 @@ const getMultiTestReport = async (req, res, next) => {
       let processed = new Set();
       tests.forEach((test) => types.add(test.type));
       let groups = [];
+      console.log(numberGroups);
       for (let i = 0; i < numberGroups; i++) {
         if (!Array.isArray(groups[i])) {
           groups[i] = [];
@@ -181,11 +184,14 @@ const getMultiTestReport = async (req, res, next) => {
       }
       patient.groups = groups;
       groups.forEach((group) => {
+        patientResult.push(patient);
+        let index = patientResult.length - 1;
+        let currentPatient = patientResult[index];
         group.forEach((idTest) => {
           let current = patient.tests.find((test) => test.id === idTest);
           if (current.results) {
             Object.keys(current.results).forEach((key) => {
-              patient[key] = current.results[key];
+              currentPatient[key] = current.results[key];
             });
           }
         });
