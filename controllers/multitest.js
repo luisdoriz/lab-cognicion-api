@@ -182,7 +182,7 @@ const getMultiTestReport = async (req, res, next) => {
       }
       patient.groups = groups;
       groups.forEach((group) => {
-        patientResult.push(patient);
+        patientResult.push({ ...patient });
         let index = patientResult.length - 1;
         let currentPatient = patientResult[index];
         console.log(group);
