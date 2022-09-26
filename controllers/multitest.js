@@ -185,6 +185,7 @@ const getMultiTestReport = async (req, res, next) => {
         patientResult.push(patient);
         let index = patientResult.length - 1;
         let currentPatient = patientResult[index];
+        console.log(group);
         group.forEach((idTest) => {
           let current = patient.tests.find((test) => test.id === idTest);
           if (current.results) {
