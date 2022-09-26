@@ -127,7 +127,6 @@ const getMultiTestReport = async (req, res, next) => {
       "updatedAt",
       "dose",
     ];
-    let resultPatients = [];
     for (let i = 0; i < iterations; i++) {
       let currentPatients = patients.slice(
         i * pageSize,
@@ -135,11 +134,10 @@ const getMultiTestReport = async (req, res, next) => {
       );
       const promises = [];
       currentPatients.forEach((patient) => {
-        let tests = patient.tests;
         excludeCols.forEach((key) => {
           delete patient[key];
         });
-        tests.forEach((currentTest) => {
+        patient.tests.forEach((currentTest) => {
           promises.push(
             new Promise((resolve, reject) => {
               axios
@@ -150,7 +148,6 @@ const getMultiTestReport = async (req, res, next) => {
                     results,
                     currentTest.type
                   );
-                  resultPatients.push(patient);
                   resolve();
                 })
                 .catch(reject);
@@ -160,7 +157,6 @@ const getMultiTestReport = async (req, res, next) => {
       });
       await Promise.all(promises);
     }
-    patients = resultPatients;
     patients.forEach((patient) => {
       let tests = patient.tests;
       tests.sort((a, b) => (a.type < b.type ? -1 : 1));
