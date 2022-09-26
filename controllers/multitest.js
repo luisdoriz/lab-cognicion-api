@@ -197,6 +197,7 @@ const getMultiTestReport = async (req, res, next) => {
       delete patient.tests;
       delete patient.groups;
     });
+    patients = patientResult;
     const workbook = XLSX.utils.book_new();
     const patientsWS = XLSX.utils.json_to_sheet(patients);
     XLSX.utils.book_append_sheet(workbook, patientsWS, "Pacientes");
