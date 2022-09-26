@@ -113,10 +113,10 @@ const getMultiTestReport = async (req, res, next) => {
           },
         },
       ],
-      limit: 10,
     });
     patients = patients.map((current) => current.toJSON());
-    const promises = [];
+    let pageSize = 10;
+    let iterations = Math.ceil(patients.length / pageSize);
     let excludeCols = [
       "drugsConsumption",
       "drugsTreatment",
@@ -127,30 +127,40 @@ const getMultiTestReport = async (req, res, next) => {
       "updatedAt",
       "dose",
     ];
-    patients.forEach((patient) => {
-      let tests = patient.tests;
-      excludeCols.forEach((key) => {
-        delete patient[key];
+    let result = [];
+    for (let i = 0; i < iterations; i++) {
+      let currentPatients = patients.slice(
+        i * pageSize,
+        i * pageSize + pageSize
+      );
+      const promises = [];
+      currentPatients.forEach((patient) => {
+        let tests = patient.tests;
+        excludeCols.forEach((key) => {
+          delete patient[key];
+        });
+        tests.forEach((currentTest) => {
+          promises.push(
+            new Promise((resolve, reject) => {
+              axios
+                .get(`${testApiUrl}/results?idTest=${currentTest.id}`)
+                .then((result) => {
+                  let results = result.data.data[0];
+                  currentTest.results = formatSummaryTestResults(
+                    results,
+                    currentTest.type
+                  );
+                  result.push(patient);
+                  resolve();
+                })
+                .catch(reject);
+            })
+          );
+        });
       });
-      tests.forEach((currentTest) => {
-        promises.push(
-          new Promise((resolve, reject) => {
-            axios
-              .get(`${testApiUrl}/results?idTest=${currentTest.id}`)
-              .then((result) => {
-                let results = result.data.data[0];
-                currentTest.results = formatSummaryTestResults(
-                  results,
-                  currentTest.type
-                );
-                resolve();
-              })
-              .catch(reject);
-          })
-        );
-      });
-    });
-    await Promise.all(promises);
+      await Promise.all(promises);
+    }
+    patients = result;
     patients.forEach((patient) => {
       let tests = patient.tests;
       tests.sort((a, b) => (a.type < b.type ? -1 : 1));
