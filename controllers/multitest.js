@@ -113,6 +113,7 @@ const getMultiTestReport = async (req, res, next) => {
           },
         },
       ],
+      limit: 10,
     });
     patients = patients.map((current) => current.toJSON());
     const promises = [];
