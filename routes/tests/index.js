@@ -12,7 +12,7 @@ results.put("/results", auth.valid, TestsController.putResult);
 
 // GET
 results.get("/", auth.valid, TestsController.getResults);
-results.get("/:id", auth.valid, TestsController.getResult);
+results.get("/:id", TestsController.getResult);
 results.get(
   "/patient/:idPatient",
   auth.valid,

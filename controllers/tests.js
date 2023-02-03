@@ -6,7 +6,6 @@ const {
   getUserTest,
   getTestByQuery,
   getByAccessUrlId,
-  getById,
 } = require("../actions/tests/read");
 const responses = require("../constants/responses");
 const { labels } = require("../constants/utils");
@@ -23,6 +22,7 @@ const {
   formatNechapi,
   getStatsNechapis,
 } = require("../functions/training");
+const { Result, Setting } = require("../mongoose");
 
 exports.createTest = async (req, res) => {
   const { body } = req;
@@ -225,24 +225,13 @@ exports.getAllPatientResults = async (req, res) => {
 };
 
 exports.getResult = async (req, res) => {
-  const { params, body } = req;
+  const { params } = req;
   const { id: idTest } = params;
   try {
     const test = await getUserTest(idTest);
-    const testApiUrl = process.env.TESTS_API;
-    url = `${testApiUrl}/results?idTest=${idTest}`;
-    const request = await axios.get(url);
-    const settings = await axios.get(`${testApiUrl}/settings`, {
-      params: { idTest },
-    });
-    const { data } = request.data;
-    let results = {};
-    if (data.length > 0) {
-      results = data[0];
-    }
-    res
-      .status(200)
-      .json({ data: { test, results, settings: settings.data.data[0] } });
+    const results = await Result.findOne({ idTest });
+    const settings = await Setting.findOne({ idTest });
+    res.status(200).json({ data: { test, results, settings } });
   } catch (error) {
     console.log("Error", error);
     res.status(500).json({ status: responses.INTERNAL_ERROR, error });

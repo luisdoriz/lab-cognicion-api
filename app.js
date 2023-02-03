@@ -3,9 +3,6 @@ require("dotenv").config();
 const port = process.env.PORT || 3000;
 var express = require("express");
 const bodyParser = require("body-parser");
-const morgan = require("morgan");
-const winston = require("./config/winston");
-
 const app = express();
 
 const routes = require("./routes");
