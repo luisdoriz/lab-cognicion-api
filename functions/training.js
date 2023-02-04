@@ -7,6 +7,7 @@ const testApiUrl = process.env.TESTS_API;
 const moment = require("moment");
 const axios = require("axios");
 const math = require("mathjs");
+const { Result } = require("../mongoose");
 
 const handleTraining = async (idPatient) => {
   let results = await getAllResultsPaciente(idPatient);
@@ -116,11 +117,10 @@ const printNechapisExcel = (surveys) => {
 };
 
 const getAllResultsPaciente = async (idPatient) => {
-  return axios.get(`${testApiUrl}/results`).then((res) => {
-    return res.data.data.filter(
-      (test) => parseInt(test.idPatient) === parseInt(idPatient)
-    );
-  });
+  const results = await Result.findAll();
+  return results.filter(
+    (test) => parseInt(test.idPatient) === parseInt(idPatient)
+  );
 };
 
 const getAllResults = async (idTestType) => {

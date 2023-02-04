@@ -7,6 +7,7 @@ const {
   getSurveyByQuery,
   getUserSurvey,
 } = require("../actions/surveys");
+const { Survey } = require("../mongoose");
 
 exports.postSurvey = async (req, res) => {
   const { body } = req;
@@ -106,26 +107,17 @@ exports.getSurvey = async (req, res) => {
   const { admin = false } = query;
   try {
     const survey = await getUserSurvey(idSurvey);
-    const testApiUrl = process.env.TESTS_API;
     const query = {
       idSurvey: parseInt(idSurvey),
     };
     if (!isAdmin || !admin) {
       query.idUser = idUser;
     }
-    const request = await axios.get(`${testApiUrl}/surveys`, { params: query });
-    let { data } = request.data;
-    if (data.length > 0) {
-      data = data[0];
-      res.status(200).json({
-        status: responses.SUCCESS_STATUS,
-        data: { survey, results: data },
-      });
-    } else {
-      res
-        .status(200)
-        .json({ status: responses.SUCCESS_STATUS, data: { survey } });
-    }
+    const results = await Survey.find({ ...query });
+    res.status(200).json({
+      status: responses.SUCCESS_STATUS,
+      data: { survey, results },
+    });
   } catch (error) {
     console.log("Error", error);
     res.status(400).json({ status: responses.INTERNAL_ERROR, error });
