@@ -11,7 +11,9 @@ module.exports = (sequelize, DataTypes) => {
       idPatient: DataTypes.INTEGER,
       order: DataTypes.INTEGER,
     },
-    {}
+    {
+      paranoid: true,
+    }
   );
 
   Test.associate = function (models) {

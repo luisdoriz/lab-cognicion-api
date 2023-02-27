@@ -44,13 +44,9 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 db.sequelize.afterConnect(() => {
-  db.sequelize
-    .query(
-      "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
-    )
-    .then(() => {
-      console.log("done");
-    });
+  db.sequelize.query(
+    "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
+  );
 });
 
 module.exports = db;

@@ -1,9 +1,9 @@
 //Load express module with `require` directive
+require("dotenv").config();
 const port = process.env.PORT || 3000;
 var express = require("express");
 const app = express();
 const cors = require("cors");
-const morgan = require("morgan");
 const routes = require("./routes");
 const models = require("./models");
 const Sentry = require("@sentry/node");
@@ -11,14 +11,11 @@ const bodyParser = require("body-parser");
 const Tracing = require("@sentry/tracing");
 const server = require("http").Server(app);
 
-require("dotenv").config();
-
 const allowedOrigins = [
   "http://localhost:3000",
   "https://lab-conginicion.web.app",
 ];
 
-app.use(morgan("tiny", { stream: winston.stream }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(
@@ -82,7 +79,7 @@ if (process.env.NODE_ENV !== "development") {
   });
 }
 
-models.sequelize.sync().then(() => {
+models.sequelize.sync({ alter: true }).then(() => {
   server.listen(port, () => {});
   server.on("error", onError);
   server.on("listening", onListening);

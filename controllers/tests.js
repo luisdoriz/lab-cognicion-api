@@ -22,12 +22,11 @@ const {
   formatNechapi,
   getStatsNechapis,
 } = require("../functions/training");
-const { Result, Setting } = require("../mongoose");
+const { Result, Setting, Survey } = require("../mongoose");
 
 exports.createTest = async (req, res) => {
   const { body } = req;
   try {
-    const testApiUrl = process.env.TESTS_API;
     const new_body = body;
     if (new_body.user) {
       new_body.idUser = new_body.user.id;
@@ -37,7 +36,7 @@ exports.createTest = async (req, res) => {
     new_body.idTest = user_test.id;
     delete new_body.testType;
     delete new_body._id;
-    await axios.post(`${testApiUrl}/settings`, new_body);
+    await Setting.create({ ...new_body });
     await findPatientByQuery({ id: new_body.idPatient });
     res.status(200).json({ data: user_test });
   } catch (error) {
@@ -49,7 +48,6 @@ exports.createTest = async (req, res) => {
 exports.postResult = async (req, res) => {
   const { body } = req;
   try {
-    const testApiUrl = process.env.TESTS_API;
     const test = await getByAccessUrlId(body.idAccessUrl);
     const new_body = body;
     new_body.idUser = test.user.id;
@@ -57,8 +55,8 @@ exports.postResult = async (req, res) => {
     new_body.idPatient = test.patient.id;
     delete new_body.idAccessUrl;
     delete new_body.token;
-    const request = await axios.post(`${testApiUrl}/results`, new_body);
-    res.status(200).json(request.data);
+    const result = await Result.create({ ...new_body });
+    res.status(200).json({ result });
   } catch (error) {
     console.log("Error: ", error);
     res.status(400).json({ status: responses.INTERNAL_ERROR, error });
@@ -68,14 +66,17 @@ exports.postResult = async (req, res) => {
 exports.putResult = async (req, res) => {
   const { body } = req;
   try {
-    const testApiUrl = process.env.TESTS_API;
     const new_body = body;
     const rule = new_body.rule;
-    const request = await axios.put(
-      `${testApiUrl}/results/${new_body.idTest}`,
-      { rule }
+    const result = await Result.updateOne(
+      {
+        idTest,
+      },
+      {
+        rule,
+      }
     );
-    res.status(200).json(request.data);
+    res.status(200).json({ result });
   } catch (error) {
     console.log("Error: ", error);
     res.status(400).json({ status: responses.INTERNAL_ERROR, error });
@@ -115,13 +116,14 @@ exports.searchTests = async (req, res) => {
   if (isNaN(query.type)) {
     delete query.type;
   }
-  if (query.startDate === "") {
+  if (query.startDate !== null && query.startDate === "") {
     delete query.startDate;
   }
 
-  if (query.endDate === "") {
+  if (query.endDate !== null && query.endDate === "") {
     delete query.endDate;
   }
+  console.log(query);
   try {
     const tests = await getTestByQuery(query);
     res.status(200).json({ data: tests });
@@ -136,13 +138,7 @@ exports.getAllPatientResults = async (req, res) => {
   const { idPatient } = params;
   const { method } = query;
   try {
-    const testApiUrl = process.env.TESTS_API;
-    const request = await axios.get(`${testApiUrl}/surveys`, {
-      params: {
-        idPatient: idPatient,
-      },
-    });
-    let surveys = request.data.data;
+    const surveys = await Survey.find({ idPatient });
     const prediction = {};
     labels.forEach((key) => {
       prediction[key] = {};
@@ -226,10 +222,12 @@ exports.getAllPatientResults = async (req, res) => {
 
 exports.getResult = async (req, res) => {
   const { params } = req;
-  const { id: idTest } = params;
+  let { id: idTest } = params;
   try {
     const test = await getUserTest(idTest);
+    idTest = parseInt(idTest);
     const results = await Result.findOne({ idTest });
+    console.log(results);
     const settings = await Setting.findOne({ idTest });
     res.status(200).json({ data: { test, results, settings } });
   } catch (error) {

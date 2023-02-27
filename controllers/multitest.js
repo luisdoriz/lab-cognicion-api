@@ -1,11 +1,18 @@
 const models = require("../models");
-const axios = require("axios");
 const { formatSummaryTestResults } = require("../functions/tests");
-const testApiUrl = process.env.TESTS_API;
-const { MultiTest, Test, TestType, Survey, SurveyType, AccessUrl, Patient } =
-  models;
+const {
+  File,
+  Test,
+  Survey,
+  Patient,
+  TestType,
+  AccessUrl,
+  MultiTest,
+  SurveyType,
+} = models;
 const XLSX = require("xlsx");
 const moment = require("moment");
+const { Result } = require("../mongoose");
 
 const getAllMultiTests = async (req, res, next) => {
   try {
@@ -34,6 +41,7 @@ const getMultiTest = async (req, res, next) => {
             {
               model: TestType,
               as: "testType",
+              include: { model: File, as: "thumbnail" },
             },
             {
               model: AccessUrl,
@@ -48,6 +56,10 @@ const getMultiTest = async (req, res, next) => {
             {
               model: SurveyType,
               as: "surveyType",
+              include: {
+                model: File,
+                as: "thumbnail",
+              },
             },
             {
               model: AccessUrl,
@@ -140,10 +152,8 @@ const getMultiTestReport = async (req, res, next) => {
         patient.tests.forEach((currentTest) => {
           promises.push(
             new Promise((resolve, reject) => {
-              axios
-                .get(`${testApiUrl}/results?idTest=${currentTest.id}`)
-                .then((result) => {
-                  let results = result.data.data[0];
+              Result.find({ idTest: currentTest.id })
+                .then((results) => {
                   currentTest.results = formatSummaryTestResults(
                     results,
                     currentTest.type

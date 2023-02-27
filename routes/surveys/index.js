@@ -12,6 +12,7 @@ results.post("/answer", auth.valid, SurveysController.postSurveyAnswer);
 // GET
 results.get("/", auth.valid, SurveysController.getSurveys);
 results.get("/search", auth.valid, SurveysController.searchSurveys);
+results.get("/types", auth.valid, SurveysController.getSurveyTypes);
 results.get("/:id", auth.valid, SurveysController.getSurvey);
 
 module.exports = results;

@@ -1,13 +1,23 @@
-const axios = require("axios");
 const responses = require("../constants/responses");
 const {
   createSurvey,
-  getByAccessUrlId,
+  getUserSurvey,
   getUserSurveys,
   getSurveyByQuery,
-  getUserSurvey,
+  getByAccessUrlId,
 } = require("../actions/surveys");
 const { Survey } = require("../mongoose");
+const { SurveyType } = require("../models");
+
+exports.getSurveyTypes = async (req, res) => {
+  try {
+    const surveyTypes = await SurveyType.findAll();
+    res.status(200).send({ surveyTypes });
+  } catch (error) {
+    console.log("Error: ", error);
+    res.status(400).json({ status: responses.INTERNAL_ERROR, error });
+  }
+};
 
 exports.postSurvey = async (req, res) => {
   const { body } = req;
@@ -28,16 +38,14 @@ exports.postSurvey = async (req, res) => {
 exports.postSurveyAnswer = async (req, res) => {
   const { body } = req;
   try {
-    const testApiUrl = process.env.TESTS_API;
     const new_body = body;
-
-    const survey = await getByAccessUrlId(body.idAccessUrl);
+    let survey = await getByAccessUrlId(body.idAccessUrl);
     new_body.idUser = survey.idUser;
     new_body.idPatient = survey.idPatient;
     new_body.idSurvey = survey.id;
     delete new_body.idAccessUrl;
-    const request = await axios.post(`${testApiUrl}/surveys`, new_body);
-    res.status(200).json(request.data);
+    survey = await Survey.create({ ...new_body });
+    res.status(200).json({ survey });
   } catch (error) {
     console.log("Error: ", error);
     res.status(400).json({ status: responses.INTERNAL_ERROR, error });

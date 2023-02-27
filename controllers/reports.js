@@ -1,6 +1,6 @@
 const XLSX = require("xlsx");
-const axios = require("axios");
 const { getUserTest } = require("../actions/tests/read");
+const { Result } = require("../mongoose");
 const moment = require("moment");
 
 const parseMoves = (results, testType) => {
@@ -75,14 +75,7 @@ const parseMovementsToFeatures = (movements) => {
 exports.createReportHanoi = async (req, res) => {
   const { idTest } = req.params;
   const test = await getUserTest(idTest);
-  const testApiUrl = process.env.TESTS_API;
-  url = `${testApiUrl}/results?idTest=${idTest}`;
-  const request = await axios.get(url);
-  const { data } = request.data;
-  let results = {};
-  if (data.length > 0) {
-    results = data[0];
-  }
+  const results = await Result.find({ idTest });
   const result = { test, results };
   const workbook = XLSX.utils.book_new();
   const moves = parseMoves(results, test.testType);
@@ -100,14 +93,7 @@ exports.createReportHanoi = async (req, res) => {
 exports.createFeaturesHanoi = async (req, res) => {
   const { idTest } = req.params;
   const test = await getUserTest(idTest);
-  const testApiUrl = process.env.TESTS_API;
-  url = `${testApiUrl}/results?idTest=${idTest}`;
-  const request = await axios.get(url);
-  const { data } = request.data;
-  let results = {};
-  if (data.length > 0) {
-    results = data[0];
-  }
+  const results = await Result.find({ idTest });
   const result = { test, results };
   const workbook = XLSX.utils.book_new();
   const movements = parseMovementsToFeatures(result.results.movements);

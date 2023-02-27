@@ -1,4 +1,4 @@
-const axios = require("axios");
+const { Setting } = require("../mongoose");
 
 const getTypeUrl = (idTestType) => {
   switch (idTestType) {
@@ -17,12 +17,8 @@ const getTypeUrl = (idTestType) => {
 
 const getPublicTestUrl = async (test) => {
   const { token } = test.accessUrl;
-  const testApiUrl = process.env.TESTS_API;
   const { id: idTest } = test;
-  const request = await axios.get(`${testApiUrl}/settings`, {
-    params: { idTest },
-  });
-  settings = request.data.data[0];
+  const settings = await Setting.find({ idTest });
   settings.token = token;
   const args = Object.keys(settings)
     .map((key) =>

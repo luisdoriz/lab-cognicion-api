@@ -3,11 +3,10 @@ const { getNechapiFeature } = require("../functions/tests");
 const { Feature, Sequelize } = require("../models");
 const models = require("../models");
 const flaskApiUrl = "http://67.205.147.30:5000";
-const testApiUrl = process.env.TESTS_API;
 const moment = require("moment");
 const axios = require("axios");
 const math = require("mathjs");
-const { Result } = require("../mongoose");
+const { Result, Survey } = require("../mongoose");
 
 const handleTraining = async (idPatient) => {
   let results = await getAllResultsPaciente(idPatient);
@@ -95,7 +94,7 @@ const getStatsNechapis = async () => {
 };
 
 const getAllNechapis = () => {
-  return axios.get(`${testApiUrl}/surveys`).then((res) => {
+  return Survey.find().then((res) => {
     const surveys = res.data.data
       .map((survey) => {
         if (survey.questions) {
@@ -117,14 +116,14 @@ const printNechapisExcel = (surveys) => {
 };
 
 const getAllResultsPaciente = async (idPatient) => {
-  const results = await Result.findAll();
+  const results = await Result.find();
   return results.filter(
     (test) => parseInt(test.idPatient) === parseInt(idPatient)
   );
 };
 
 const getAllResults = async (idTestType) => {
-  return axios.get(`${testApiUrl}/results`).then((res) => {
+  return Result.find().then((res) => {
     return res.data.data.filter(
       (test) => test.settings.idTestType === idTestType
     );

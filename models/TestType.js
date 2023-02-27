@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       name: DataTypes.STRING,
       handle: DataTypes.STRING,
+      author: DataTypes.STRING,
     },
     {}
   );
@@ -14,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
     TestType.hasMany(models.Test, {
       as: "tests",
       foreignKey: "type",
+    });
+    TestType.belongsTo(models.File, {
+      as: "thumbnail",
+      foreignKey: "idFile",
     });
   };
   return TestType;
