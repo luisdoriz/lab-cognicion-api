@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
-const models = require("../../models");
-
+const models = require("../models");
+const { createAccessUrl } = require("./accessUrls");
 const { Survey, AccessUrl, SurveyType, Patient } = models;
 
 const getSurveyByQuery = async (query) => {
@@ -41,7 +41,7 @@ const getSurveyByQuery = async (query) => {
   return Survey.findAll(query);
 };
 
-const getById = async (query) =>
+const getSurveyById = async (query) =>
   Survey.findOne({
     where: query,
     include: [
@@ -95,10 +95,43 @@ const getByAccessUrlId = async (id) =>
     ],
   });
 
+const postSurvey = async (body) => Survey.create(body);
+
+const createSurvey = async (body) => {
+  try {
+    const accessUrl = await createAccessUrl();
+    let idAccessUrl = accessUrl.id;
+    const { idUser, idPatient, idSurveyType: type, idMultiTest } = body;
+    const surveyBody = {
+      type,
+      idUser,
+      idPatient,
+      idAccessUrl,
+      idMultiTest,
+    };
+    test = await postSurvey(surveyBody);
+    return test;
+  } catch (err) {
+    console.log("error", err);
+    return null;
+  }
+};
+
+const updateSurvey = async (data) => {
+  await Survey.update(data, {
+    where: {
+      id: data.id,
+    },
+  });
+  return getSurveyById(data.id);
+};
+
 module.exports = {
+  getByAccessUrlId,
   getSurveyByQuery,
   getUserSurveys,
   getUserSurvey,
-  getByAccessUrlId,
-  getById,
+  createSurvey,
+  getSurveyById,
+  updateSurvey,
 };

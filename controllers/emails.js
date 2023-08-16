@@ -1,5 +1,5 @@
 const TestActions = require("../actions/tests");
-const SurveysActions = require("../actions/surveys/read");
+const SurveysActions = require("../actions/surveys");
 const responses = require("../constants/responses");
 const { sendEmailTest, sendEmailSurvey } = require("../modules/sendgrid");
 const { getPublicTestUrl } = require("../helpers/public_urls");

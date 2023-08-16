@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { findPatientByQuery } = require("../actions/patients/read");
+const { findPatientByQuery } = require("../actions/patients");
 const {
   createTest,
   getUserTest,
