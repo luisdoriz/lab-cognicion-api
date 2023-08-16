@@ -1,68 +1,31 @@
-const jwt = require("jwt-simple");
+const admin = require("firebase-admin");
 
-const { User, Test, Payment } = require("../models");
-
-const tokenSecret = "lab-cognicion";
-
-/**
- * @param {JSON - Authorization} req
- * @param {JSON} res
- * @param {Function} next
- */
-exports.valid = (req, res, next) => {
-  if (
-    req.headers.authorization &&
-    req.headers.authorization !== "undefined" &&
-    req.headers.authorization.length > 0
-  ) {
-    try {
-      const decoded = jwt.decode(req.headers.authorization, tokenSecret);
-      if ("idAccessUrl" in decoded) {
-        req.body.idAccessUrl = decoded.idAccessUrl;
-        next();
-      } else {
-        User.findOne({
-          where: {
-            id: decoded.id,
-            token: req.headers.authorization,
-          },
-          include: [
-            { model: Test, required: false, as: "tests" },
-            { model: Payment, required: false, as: "payments" },
-          ],
-        })
-          .then((user) => {
-            if (user.id) {
-              req.body.user = user;
-              next();
-            } else {
-              res.status(401).json({
-                status: "error",
-                message: "Unauthorized",
-              });
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            res.status(401).json({
-              status: "error",
-              message: "Unauthorized",
-              error: err,
-            });
-          });
+const fbAuth = async (req, res, next) => {
+  try {
+    if (req.headers.authorization) {
+      const token = req.headers.authorization;
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      if (decodedToken) {
+        req.uid = decodedToken.uid;
       }
-    } catch (e) {
-      res.status(401).json({
-        status: "error",
-        message: "Unauthorized",
-      });
     }
-  } else {
-    res.status(401).json({
-      status: "error",
-      data: null,
-      message: "Unauthorized",
-      error: "No token provided",
-    });
+    next();
+  } catch (error) {
+    next(error);
   }
+};
+
+const token = async (req, res, next) => {
+  if (req.headers.authorization) {
+    next();
+  } else {
+    return res
+      .status(400)
+      .send({ code: 400, status: "failed", message: "Missing auth token" });
+  }
+};
+
+module.exports = {
+  token,
+  fbAuth,
 };

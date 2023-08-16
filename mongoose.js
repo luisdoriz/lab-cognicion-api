@@ -1,10 +1,8 @@
 const mongoose = require("mongoose");
 
 const environments = {
-  testing:
-    "mongodb+srv://jmalvarezs:HulkingCone79@cluster0.duvbskx.mongodb.net/test",
-  development:
-    "mongodb+srv://api:roble219@cluster0.qiohz.mongodb.net/tests?retryWrites=true&w=majority",
+  testing: process.env.MONGODB_URL,
+  development: process.env.MONGODB_URL,
 };
 mongoose.connect(environments[process.env.NODE_ENV]);
 
@@ -49,16 +47,37 @@ const Result = mongoose.model(
 const Survey = mongoose.model(
   "Survey",
   new mongoose.Schema({
+    idUser: Number,
     idSurvey: Number,
     idPatient: Number,
+    questions: Array,
+    createdAt: Date,
+    updatedAt: Date,
+    observaciones: String,
   })
 );
 
 const Setting = mongoose.model(
   "Setting",
   new mongoose.Schema({
+    idUser: Number,
     idTest: Number,
     idPatient: Number,
+    idTestType: Number,
+    tiempoExposicion: String,
+    tiempoInterestimular: String,
+    target: String,
+    fontFamily: String,
+    fontStyle: String,
+    fontSize: String,
+    color: String,
+    backgroundColor: String,
+    numeroEstimulos: Number,
+    aparicion: String,
+    keyCode: String,
+    duracion: String,
+    createdAt: Date,
+    updatedAt: Date,
   })
 );
 

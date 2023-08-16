@@ -14,6 +14,14 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
+  AccessUrl.associate = function (models) {
+    AccessUrl.hasOne(models.Test, { as: "test", foreignKey: "idAccessUrl" });
+
+    AccessUrl.hasOne(models.Survey, {
+      as: "survey",
+      foreignKey: "idAccessUrl",
+    });
+  };
 
   AccessUrl.beforeCreate(async (model) => {
     const expires = moment().add(3, "months").valueOf();

@@ -1,5 +1,5 @@
 const XLSX = require("xlsx");
-const { getUserTest } = require("../actions/tests/read");
+const { getUserTest } = require("../actions/tests");
 const { Result } = require("../mongoose");
 const moment = require("moment");
 

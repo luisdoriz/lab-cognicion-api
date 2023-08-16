@@ -7,14 +7,20 @@ const cors = require("cors");
 const routes = require("./routes");
 const models = require("./models");
 const Sentry = require("@sentry/node");
+const admin = require("firebase-admin");
 const bodyParser = require("body-parser");
 const Tracing = require("@sentry/tracing");
 const server = require("http").Server(app);
+const serviceAccount = require("./serviceAccount.json");
 
 const allowedOrigins = [
   "http://localhost:3000",
   "https://lab-conginicion.web.app",
 ];
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());

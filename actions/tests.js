@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
-const models = require("../../models");
-
+const models = require("../models");
+const { createAccessUrl } = require("./accessUrls");
 const { Test, AccessUrl, TestType, Patient, User, Damage } = models;
 
 const getTestByQuery = async (query) => {
@@ -106,10 +106,41 @@ const getByAccessUrlId = async (id) =>
     ],
   });
 
+const postTest = async (body) => Test.create(body);
+
+const createTest = async (body) => {
+  try {
+    const accessUrl = await createAccessUrl();
+    idAccessUrl = accessUrl.id;
+    const testBody = {
+      idUser: body.idUser,
+      idPatient: body.idPatient,
+      type: body.idTestType,
+      idAccessUrl,
+      idMultiTest: body.idMultiTest,
+    };
+    test = await postTest(testBody);
+    return test;
+  } catch (err) {
+    console.log("error", err);
+    return null;
+  }
+};
+
+const updateTest = async (data) => {
+  await Test.update(data, {
+    where: {
+      id: data.id,
+    },
+  });
+};
+
 module.exports = {
+  getByAccessUrlId,
   getTestByQuery,
   getUserTests,
   getUserTest,
-  getByAccessUrlId,
+  createTest,
+  updateTest,
   getById,
 };

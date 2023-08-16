@@ -1,5 +1,5 @@
 const { Survey } = require("../../models");
-const { createAccessUrl } = require("../accessUrls/create");
+const { createAccessUrl } = require("../accessUrls");
 
 const postSurvey = async (body) => Survey.create(body);
 

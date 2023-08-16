@@ -5,10 +5,11 @@ const {
   getMultiTestPatient,
   getMultiTestReport,
 } = require("../controllers/multitest");
-const auth = require("../middleware/auth");
+const { userAuth } = require("../middleware/user");
+const { token, fbAuth } = require("../middleware/auth");
 const router = express.Router();
 
-router.get("/", auth.valid, getAllMultiTests);
+router.get("/", [token, fbAuth, userAuth], getAllMultiTests);
 
 router.get("/:idMultiTest", getMultiTest);
 

@@ -2,37 +2,16 @@ const Users = require("../actions/users");
 const responses = require("../constants/responses");
 
 exports.postUser = async (req, res) => {
-  const {
-    name,
-    profession,
-    email,
-    password,
-    institution,
-    birthDate,
-    country,
-    scholarship,
-    logo,
-  } = req.body;
-  const body = {
-    name,
-    profession,
-    email,
-    password,
-    institution,
-    birthDate,
-    country,
-    scholarship,
-    logo,
-  };
   try {
-    const emailExists = await Users.userEmailExists(email);
+    const data = req.body;
+    const emailExists = await Users.userEmailExists(data.email);
     if (emailExists) {
       res.status(409).json({
         status: responses.ERROR_STATUS,
         message: "There is already an account with that email provided.",
       });
     } else {
-      const user = await Users.createUser(body);
+      const user = await Users.createUser(data);
       res.status(201).json({ status: responses.SUCCESS_STATUS, data: user });
     }
   } catch (error) {
@@ -55,17 +34,15 @@ exports.logIn = async (req, res) => {
 };
 
 exports.getUser = async (req, res) => {
-  res
-    .status(200)
-    .json({ status: responses.SUCCESS_STATUS, data: req.body.user });
+  res.status(200).json({ status: responses.SUCCESS_STATUS, user: req.user });
 };
 
 exports.getAllUsers = async (req, res) => {
-  const { isAdmin } = req.body.user;
+  const { isAdmin } = req.user;
   try {
     if (isAdmin) {
-      const data = await Users.getUsers();
-      res.status(200).json({ status: responses.SUCCESS_STATUS, data });
+      const users = await Users.getUsers();
+      res.status(200).json({ status: responses.SUCCESS_STATUS, users });
     } else {
       res.status(400).json({
         status: responses.ERROR_STATUS,
@@ -81,12 +58,12 @@ exports.getAllUsers = async (req, res) => {
 };
 
 exports.editUser = async (req, res) => {
-  const { id } = req.body.user;
-  delete req.body.user;
+  const { id } = req.user;
+  delete req.user;
   const body = { ...req.body };
   try {
-    const data = await Users.update(id, body);
-    res.status(200).json({ status: responses.SUCCESS_STATUS, data });
+    await Users.update(id, body);
+    res.status(200).json({ status: responses.SUCCESS_STATUS });
   } catch {
     res.status(500).json({
       status: responses.ERROR_STATUS,
@@ -96,12 +73,12 @@ exports.editUser = async (req, res) => {
 };
 
 exports.deleteUser = async (req, res) => {
-  const { isAdmin } = req.body.user;
+  const { isAdmin } = req.user;
   const { id } = req.params;
   try {
     if (isAdmin) {
-      const data = await Users.deleteUser(id);
-      res.status(200).json({ status: responses.SUCCESS_STATUS, data });
+      await Users.deleteUser(id);
+      res.status(200).json({ status: responses.SUCCESS_STATUS });
     } else {
       res.status(400).json({
         status: responses.ERROR_STATUS,

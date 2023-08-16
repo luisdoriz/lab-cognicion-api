@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       idPatient: DataTypes.INTEGER,
       order: DataTypes.INTEGER,
+      completedAt: DataTypes.DATE,
     },
     {
       paranoid: true,

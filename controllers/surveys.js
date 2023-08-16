@@ -53,8 +53,8 @@ exports.postSurveyAnswer = async (req, res) => {
 };
 
 exports.getSurveys = async (req, res) => {
-  const { query, body } = req;
-  const { id: idUser, isAdmin } = body.user;
+  const { query } = req;
+  const { id: idUser, isAdmin } = req.user;
   const { admin = false } = query;
   try {
     let surveys = {};
@@ -72,7 +72,7 @@ exports.getSurveys = async (req, res) => {
 
 exports.searchSurveys = async (req, res) => {
   const { query, body } = req;
-  const { id: idUser, isAdmin } = body.user;
+  const { id: idUser, isAdmin } = req.user;
   const { admin = false } = query;
   query.admin = admin;
   if (!isAdmin || !admin) {
@@ -104,9 +104,9 @@ exports.getSurvey = async (req, res) => {
   const { params, body, query } = req;
   let idUser;
   let isAdmin;
-  if (body.user) {
-    idUser = body.user.id;
-    isAdmin = body.user.isAdmin;
+  if (req.user) {
+    idUser = req.user.id;
+    isAdmin = req.user.isAdmin;
   } else {
     idUser = body.idUser;
     isAdmin = false;

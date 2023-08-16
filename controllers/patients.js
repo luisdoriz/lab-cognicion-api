@@ -11,7 +11,7 @@ const { getAllResultsPaciente } = require("../functions/training");
 
 exports.getPatientById = async (req, res) => {
   const { params, body, query } = req;
-  const { id: idUser, isAdmin } = body.user;
+  const { id: idUser, isAdmin } = req.user;
   const { id } = params;
   const { admin = false } = query;
   try {
@@ -52,9 +52,9 @@ exports.getPatientByEmail = async (req, res) => {
 };
 
 exports.getPatients = async (req, res) => {
-  const { body, query } = req;
+  const { query } = req;
   const { admin = false } = query;
-  const { id: idUser, isAdmin } = body.user;
+  const { id: idUser, isAdmin } = req.user;
   try {
     let query;
     if (!isAdmin || !admin) {
@@ -75,8 +75,8 @@ exports.getPatients = async (req, res) => {
 exports.postPatient = async (req, res) => {
   const { body } = req;
   let idUser;
-  if (body.user) {
-    idUser = body.user.id;
+  if (req.user) {
+    idUser = req.user.id;
   }
   if (!idUser) {
     idUser = body.idUser;
@@ -100,13 +100,13 @@ exports.postPatient = async (req, res) => {
 
 exports.putPatient = async (req, res) => {
   let idUser;
-  if (req.body.user) {
-    idUser = req.body.user;
+  if (req.user) {
+    idUser = req.user;
   } else if (req.body.idUser) {
     idUser = req.body.idUser;
   }
   const { id } = req.params;
-  delete req.body.user;
+  delete req.user;
   const body = { ...req.body };
   const ids = {
     idUser,
@@ -126,7 +126,7 @@ exports.putPatient = async (req, res) => {
 
 exports.deletePatient = async (req, res) => {
   const { id } = req.params;
-  const { id: idUser } = req.body.user;
+  const { id: idUser } = req.user;
   try {
     const data = await deletePatient(id, idUser);
     res.status(200).json({ status: responses.SUCCESS_STATUS, data });

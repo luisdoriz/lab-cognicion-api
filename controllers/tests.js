@@ -1,12 +1,13 @@
 const axios = require("axios");
 const { findPatientByQuery } = require("../actions/patients/read");
-const { createTest } = require("../actions/tests/create");
 const {
-  getUserTests,
+  createTest,
   getUserTest,
+  getUserTests,
   getTestByQuery,
   getByAccessUrlId,
-} = require("../actions/tests/read");
+  updateTest,
+} = require("../actions/tests");
 const responses = require("../constants/responses");
 const { labels } = require("../constants/utils");
 const {
@@ -25,13 +26,12 @@ const {
 const { Result, Setting, Survey } = require("../mongoose");
 
 exports.createTest = async (req, res) => {
-  const { body } = req;
   try {
+    const { body } = req;
     const new_body = body;
-    if (new_body.user) {
-      new_body.idUser = new_body.user.id;
-    }
+    const { idUser } = req;
     delete new_body.user;
+    new_body.idUser = idUser;
     const user_test = await createTest(new_body);
     new_body.idTest = user_test.id;
     delete new_body.testType;
@@ -46,9 +46,9 @@ exports.createTest = async (req, res) => {
 };
 
 exports.postResult = async (req, res) => {
-  const { body } = req;
   try {
-    const test = await getByAccessUrlId(body.idAccessUrl);
+    const { body, idAccessUrl } = req;
+    const test = await getByAccessUrlId(idAccessUrl);
     const new_body = body;
     new_body.idUser = test.user.id;
     new_body.idTest = test.id;
@@ -56,6 +56,11 @@ exports.postResult = async (req, res) => {
     delete new_body.idAccessUrl;
     delete new_body.token;
     const result = await Result.create({ ...new_body });
+    const completedAt = moment().format("YYYY-MM-DD HH:mm");
+    await updateTest({
+      ...test,
+      completedAt,
+    });
     res.status(200).json({ result });
   } catch (error) {
     console.log("Error: ", error);
@@ -85,7 +90,7 @@ exports.putResult = async (req, res) => {
 
 exports.getResults = async (req, res) => {
   const { body, query } = req;
-  const { id: idUser, isAdmin } = body.user;
+  const { id: idUser, isAdmin } = req.user;
   const { admin = false } = query;
   try {
     let tests = [];
@@ -103,7 +108,7 @@ exports.getResults = async (req, res) => {
 
 exports.searchTests = async (req, res) => {
   const { query, body } = req;
-  const { id: idUser, isAdmin } = body.user;
+  const { id: idUser, isAdmin } = req.user;
   const { admin = false } = query;
   query.admin = admin;
   if (!isAdmin || !admin) {
@@ -123,7 +128,6 @@ exports.searchTests = async (req, res) => {
   if (query.endDate !== null && query.endDate === "") {
     delete query.endDate;
   }
-  console.log(query);
   try {
     const tests = await getTestByQuery(query);
     res.status(200).json({ data: tests });
@@ -221,13 +225,11 @@ exports.getAllPatientResults = async (req, res) => {
 };
 
 exports.getResult = async (req, res) => {
-  const { params } = req;
-  let { id: idTest } = params;
   try {
+    let { idTest } = req.params;
     const test = await getUserTest(idTest);
     idTest = parseInt(idTest);
     const results = await Result.findOne({ idTest });
-    console.log(results);
     const settings = await Setting.findOne({ idTest });
     res.status(200).json({ data: { test, results, settings } });
   } catch (error) {

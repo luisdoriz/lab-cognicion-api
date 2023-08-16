@@ -1,4 +1,4 @@
-const TestActions = require("../actions/tests/read");
+const TestActions = require("../actions/tests");
 const SurveysActions = require("../actions/surveys/read");
 const responses = require("../constants/responses");
 const { sendEmailTest, sendEmailSurvey } = require("../modules/sendgrid");
