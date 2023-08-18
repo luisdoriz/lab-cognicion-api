@@ -44,8 +44,8 @@ const getTestByQuery = async (query) => {
   return Test.findAll(query);
 };
 
-const getById = async (query) =>
-  Test.findOne({
+const getById = async (query) => {
+  let currentTest = await Test.findOne({
     where: query,
     include: [
       {
@@ -66,6 +66,9 @@ const getById = async (query) =>
       },
     ],
   });
+  if (currentTest === null) return currentTest;
+  return currentTest.toJSON();
+};
 
 const getUserTests = async (idUser = false) => {
   if (idUser) {
@@ -81,8 +84,8 @@ const getUserTest = async (id) => {
   return results;
 };
 
-const getByAccessUrlId = async (id) =>
-  Test.findOne({
+const getByAccessUrlId = async (id) => {
+  let currentTest = await Test.findOne({
     include: [
       {
         model: AccessUrl,
@@ -105,7 +108,9 @@ const getByAccessUrlId = async (id) =>
       },
     ],
   });
-
+  if (currentTest === null) return currentTest;
+  return currentTest.toJSON();
+};
 const postTest = async (body) => Test.create(body);
 
 const createTest = async (body) => {
@@ -133,6 +138,7 @@ const updateTest = async (data) => {
       id: data.id,
     },
   });
+  return getById(data.id);
 };
 
 module.exports = {

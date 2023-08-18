@@ -1,4 +1,5 @@
 const axios = require("axios");
+const moment = require("moment");
 const { findPatientByQuery } = require("../actions/patients");
 const {
   createTest,
@@ -13,6 +14,7 @@ const { labels } = require("../constants/utils");
 const {
   getPuntuacionNechapi,
   getNechapiFeature,
+  formatSingleTestResults,
 } = require("../functions/tests");
 const {
   getFeatures,
@@ -49,6 +51,11 @@ exports.postResult = async (req, res) => {
   try {
     const { body, idAccessUrl } = req;
     const test = await getByAccessUrlId(idAccessUrl);
+    if (test === null) {
+      return res
+        .status(400)
+        .send({ message: "Test not found: invalid test id." });
+    }
     const new_body = body;
     new_body.idUser = test.user.id;
     new_body.idTest = test.id;
@@ -56,15 +63,22 @@ exports.postResult = async (req, res) => {
     delete new_body.idAccessUrl;
     delete new_body.token;
     const result = await Result.create({ ...new_body });
+    const settings = await Setting.findOne({ idTest: test.id });
+    const formattedTest = formatSingleTestResults(
+      new_body,
+      settings,
+      test.type
+    );
+    await Result.updateOne({ idTest: test.id }, { ...formattedTest });
     const completedAt = moment().format("YYYY-MM-DD HH:mm");
     await updateTest({
       ...test,
       completedAt,
     });
-    res.status(200).json({ result });
+    res.status(200).json({ result: formattedTest });
   } catch (error) {
     console.log("Error: ", error);
-    res.status(400).json({ status: responses.INTERNAL_ERROR, error });
+    res.status(500).json({ status: responses.INTERNAL_ERROR, error });
   }
 };
 

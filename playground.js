@@ -1,6 +1,7 @@
 const {
   formatTestResults,
   getResultadoTargetsCondicional,
+  formatSingleTestResults,
 } = require("./functions/tests");
 const XLSX = require("xlsx");
 const moment = require("moment");
@@ -316,4 +317,92 @@ function testCondicional() {
   console.log(aciertos);
 }
 
-testCondicional();
+const result =
+  /**
+   * Paste one or more documents here
+   */
+  {
+    idTest: 4,
+    idPatient: 1,
+    end: {
+      $date: "2023-08-18T17:38:49.370Z",
+    },
+    finished: true,
+    idUser: 1,
+    movements: [],
+    start: {
+      $date: "2023-08-18T17:38:38.366Z",
+    },
+    estimulos: [],
+    config: 1,
+    target: "O",
+    targets: [
+      {
+        timestamp: "2023-08-18T17:38:39.371Z",
+        target: "J",
+      },
+      {
+        timestamp: "2023-08-18T17:38:40.371Z",
+        target: "O",
+      },
+      {
+        timestamp: "2023-08-18T17:38:41.372Z",
+        target: "F",
+      },
+      {
+        timestamp: "2023-08-18T17:38:42.373Z",
+        target: "L",
+      },
+      {
+        timestamp: "2023-08-18T17:38:43.372Z",
+        target: "V",
+      },
+      {
+        timestamp: "2023-08-18T17:38:44.371Z",
+      },
+      {
+        timestamp: "2023-08-18T17:38:45.372Z",
+        target: "H",
+      },
+      {
+        timestamp: "2023-08-18T17:38:46.371Z",
+        target: "O",
+      },
+      {
+        timestamp: "2023-08-18T17:38:47.373Z",
+        target: "K",
+      },
+      {
+        timestamp: "2023-08-18T17:38:48.373Z",
+        target: "W",
+      },
+    ],
+    __v: 0,
+  };
+
+const settings = {
+  _id: {
+    $oid: "64dfac97d1bd7a72661938dd",
+  },
+  idUser: 1,
+  idTest: 4,
+  idPatient: 1,
+  idTestType: 1,
+  tiempoExposicion: "500",
+  tiempoInterestimular: "500",
+  target: "O",
+  fontFamily: "Courier",
+  fontStyle: "Normal",
+  fontSize: "100",
+  color: "#000000",
+  backgroundColor: "#cccccc",
+  numeroEstimulos: 10,
+  aparicion: "17",
+  keyCode: "32",
+  duracion: "10",
+  __v: 0,
+};
+
+function main() {
+  let results = formatSingleTestResults(result, settings, 1);
+}
