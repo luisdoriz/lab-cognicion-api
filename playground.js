@@ -317,92 +317,181 @@ function testCondicional() {
   console.log(aciertos);
 }
 
-const result =
-  /**
-   * Paste one or more documents here
-   */
-  {
-    idTest: 4,
-    idPatient: 1,
-    end: {
-      $date: "2023-08-18T17:38:49.370Z",
+const result = {
+  _id: {
+    $oid: "64dfff195bc15aeb5facca67",
+  },
+  idTest: 28,
+  device:
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
+  idUser: 1,
+  targets: [],
+  startTime: {
+    $date: "2023-08-18T22:30:38.895Z",
+  },
+  endTime: "2023-08-18 17:31:03:427",
+  estimulos: [
+    {
+      emitted: "2023-08-18 17:30:38:897",
+      type: "incongruente",
+      target: "verde",
+      display: "rojo",
+      index: 0,
+      clicked: "verde",
+      timestamp: "2023-08-18 17:30:40.437",
+      reaction: 1540,
+      correct: false,
     },
-    finished: true,
-    idUser: 1,
-    movements: [],
-    start: {
-      $date: "2023-08-18T17:38:38.366Z",
+    {
+      emitted: "2023-08-18 17:30:41:447",
+      type: "congruente",
+      target: "verde",
+      display: "verde",
+      index: 1,
+      clicked: "verde",
+      timestamp: "2023-08-18 17:30:42.133",
+      reaction: 686,
+      correct: true,
     },
-    estimulos: [],
-    config: 1,
-    target: "O",
-    targets: [
-      {
-        timestamp: "2023-08-18T17:38:39.371Z",
-        target: "J",
-      },
-      {
-        timestamp: "2023-08-18T17:38:40.371Z",
-        target: "O",
-      },
-      {
-        timestamp: "2023-08-18T17:38:41.372Z",
-        target: "F",
-      },
-      {
-        timestamp: "2023-08-18T17:38:42.373Z",
-        target: "L",
-      },
-      {
-        timestamp: "2023-08-18T17:38:43.372Z",
-        target: "V",
-      },
-      {
-        timestamp: "2023-08-18T17:38:44.371Z",
-      },
-      {
-        timestamp: "2023-08-18T17:38:45.372Z",
-        target: "H",
-      },
-      {
-        timestamp: "2023-08-18T17:38:46.371Z",
-        target: "O",
-      },
-      {
-        timestamp: "2023-08-18T17:38:47.373Z",
-        target: "K",
-      },
-      {
-        timestamp: "2023-08-18T17:38:48.373Z",
-        target: "W",
-      },
-    ],
-    __v: 0,
-  };
+    {
+      emitted: "2023-08-18 17:30:43:144",
+      type: "incongruente",
+      target: "rojo",
+      display: "azul",
+      index: 2,
+      clicked: "rojo",
+      timestamp: "2023-08-18 17:30:44.048",
+      reaction: 904,
+      correct: false,
+    },
+    {
+      emitted: "2023-08-18 17:30:45:055",
+      type: "congruente",
+      target: "azul",
+      display: "azul",
+      index: 3,
+      clicked: "azul",
+      timestamp: "2023-08-18 17:30:46.239",
+      reaction: 1184,
+      correct: true,
+    },
+    {
+      emitted: "2023-08-18 17:30:47:248",
+      type: "incongruente",
+      target: "rojo",
+      display: "azul",
+      index: 4,
+      clicked: "rojo",
+      timestamp: "2023-08-18 17:30:48.444",
+      reaction: 1196,
+      correct: false,
+    },
+    {
+      emitted: "2023-08-18 17:30:49:456",
+      type: "congruente",
+      target: "rojo",
+      display: "rojo",
+      index: 5,
+      clicked: "rojo",
+      timestamp: "2023-08-18 17:30:50.331",
+      reaction: 875,
+      correct: true,
+    },
+    {
+      emitted: "2023-08-18 17:30:51:335",
+      type: "congruente",
+      target: "rojo",
+      display: "rojo",
+      index: 6,
+      clicked: "rojo",
+      timestamp: "2023-08-18 17:30:52.041",
+      reaction: 706,
+      correct: true,
+    },
+    {
+      emitted: "2023-08-18 17:30:53:046",
+      type: "incongruente",
+      target: "azul",
+      display: "rojo",
+      index: 7,
+      clicked: "azul",
+      timestamp: "2023-08-18 17:30:54.205",
+      reaction: 1159,
+      correct: false,
+    },
+    {
+      emitted: "2023-08-18 17:30:55:216",
+      type: "congruente",
+      target: "verde",
+      display: "verde",
+      index: 8,
+      clicked: "verde",
+      timestamp: "2023-08-18 17:30:56.124",
+      reaction: 908,
+      correct: true,
+    },
+    {
+      emitted: "2023-08-18 17:30:57:128",
+      type: "congruente",
+      target: "azul",
+      display: "azul",
+      index: 9,
+      clicked: "azul",
+      timestamp: "2023-08-18 17:30:58.180",
+      reaction: 1052,
+      correct: true,
+    },
+    {
+      emitted: "2023-08-18 17:30:59:184",
+      type: "incongruente",
+      target: "verde",
+      display: "rojo",
+      index: 10,
+      clicked: "verde",
+      timestamp: "2023-08-18 17:31:00.356",
+      reaction: 1172,
+      correct: false,
+    },
+    {
+      emitted: "2023-08-18 17:31:01:359",
+      type: "incongruente",
+      target: "azul",
+      display: "rojo",
+      index: 11,
+      clicked: "azul",
+      timestamp: "2023-08-18 17:31:02.414",
+      reaction: 1055,
+      correct: false,
+    },
+  ],
+  movements: [],
+  idPatient: 1,
+  finished: true,
+  idTestType: 6,
+  __v: 0,
+};
 
 const settings = {
   _id: {
-    $oid: "64dfac97d1bd7a72661938dd",
+    $oid: "64dfff195bc15aeb5facca67",
   },
   idUser: 1,
-  idTest: 4,
+  idTest: 28,
   idPatient: 1,
-  idTestType: 1,
-  tiempoExposicion: "500",
-  tiempoInterestimular: "500",
-  target: "O",
+  idTestType: 6,
+  tiempoInterestimular: "1000",
   fontFamily: "Courier",
   fontStyle: "Normal",
   fontSize: "100",
-  color: "#000000",
-  backgroundColor: "#cccccc",
-  numeroEstimulos: 10,
-  aparicion: "17",
-  keyCode: "32",
-  duracion: "10",
+  backgroundColor: "#000",
+  numeroEstimulos: 12,
+  coherencia: 50,
   __v: 0,
 };
 
 function main() {
-  let results = formatSingleTestResults(result, settings, 1);
+  let results = formatSingleTestResults(result, settings, 6);
+  console.log(results);
 }
+
+main();

@@ -83,10 +83,8 @@ exports.postResult = async (req, res) => {
 };
 
 exports.putResult = async (req, res) => {
-  const { body } = req;
   try {
-    const new_body = body;
-    const rule = new_body.rule;
+    const { rule, idTest } = req.body;
     const result = await Result.updateOne(
       {
         idTest,

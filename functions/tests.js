@@ -25,12 +25,11 @@ const formatSingleTestResults = (test, settings, type) => {
     case 3:
       break;
     case 4:
-      params = getResultsHanoi(test.movements);
-      test.movements = [...params.movements];
+      params = getResultsHanoi(test);
       delete params.movements;
       break;
     case 5:
-      params = getResultadosFlanker(test.estimulos, settings);
+      params = getResultadosFlanker(test, settings);
       test.estimulos = [...params.estimulos];
       delete params.estimulos;
       break;

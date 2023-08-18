@@ -1,49 +1,16 @@
 const moment = require("moment");
 
-const getTiempoReaccionFlanker = (estimulos) => {
-  let suma = 0;
-  let clicks = 0;
-  estimulos.forEach((estimulo) => {
-    if (estimulo.clicked) {
-      suma += moment(estimulo.clicked, "YYYY-MM-DD HH:mm:ss:SSS").diff(
-        moment(estimulo.emitted, "YYYY-MM-DD HH:mm:ss:SSS"),
-        "miliseconds"
-      );
-      clicks++;
-    }
-  });
-  return parseFloat(suma / clicks).toFixed(2);
-};
-
-const getErroresFlanker = (estimulos, left, right) => {
-  let errores = 0;
-  estimulos.forEach((estimulo) => {
-    if (!estimulo.clicked) errores++;
-    else if (
-      estimulo.direction === "left" &&
-      String(estimulo.char).toLowerCase() !== String(left).toLowerCase()
-    )
-      errores++;
-    else if (
-      estimulo.direction === "right" &&
-      String(estimulo.char).toLowerCase() !== String(right).toLowerCase()
-    )
-      errores++;
-  });
-  return errores;
-};
-
-const getOmisionesFlanker = (estimulos) => {
-  return estimulos.filter((estimulo) => !estimulo.clicked).length;
-};
-
-const getErroresFlankerTipo = (estimulos, type, left, right) => {
-  if (type === "direction") {
-    estimulos = estimulos.filter((estimulo) => estimulo.clicked);
-  } else {
-    estimulos = estimulos.filter((estimulo) => estimulo.type === type);
-  }
-  return getErroresFlanker(estimulos, left, right);
+const getTiempoTotal = (startTime, finishTime) => {
+  const segundos = moment(finishTime, "YYYY-MM-DD HH:mm:ss:SSS").diff(
+    moment(startTime, "YYYY-MM-DD HH:mm:ss:SSS"),
+    "seconds"
+  );
+  const milisegundos =
+    moment(finishTime, "YYYY-MM-DD HH:mm:ss:SSS").diff(
+      moment(startTime, "YYYY-MM-DD HH:mm:ss:SSS"),
+      "miliseconds"
+    ) % 1000;
+  return `${segundos}.${milisegundos}`;
 };
 
 const getEstimulosFlanker = (estimulos) => {
@@ -102,59 +69,59 @@ const isValidFlanker = (estimulo, right, left) => {
   return valid;
 };
 
-const getResultadosEstimulos = (estimulos, settings) => {
-  estimulos.forEach((estimulo) => {
-    estimulo.valid = isValidFlanker(
-      estimulo,
-      settings.righKey,
-      settings.leftKey
-    );
-  });
-};
+const getResultadosFlanker = (test, settings) => {
+  let { estimulos } = test;
+  const left = settings.leftKey;
+  const right = settings.rightKey;
+  let clicks = 0;
+  let errores = 0;
+  let aciertos = 0;
+  let omisiones = 0;
+  let tiempoTotal = 0;
+  let erroresNeutrales = 0;
+  let erroresDireccion = 0;
+  let erroresCongruentes = 0;
+  let erroresIncongruentes = 0;
+  estimulos = estimulos.map((estimulo) => {
+    const valid = isValidFlanker(estimulo, right, left);
+    if (!valid) {
+      if (estimulo.clicked) {
+        erroresDireccion++;
 
-const getResultadosFlanker = (estimulos, settings) => {
-  const errores = getErroresFlanker(
-    estimulos,
-    settings.leftKey,
-    settings.rightKey
-  );
-  const erroresDireccion = getErroresFlankerTipo(
-    estimulos,
-    "direction",
-    left,
-    right
-  );
-  const omisiones = getOmisionesFlanker(estimulos);
-  const erroresCongruentes = getErroresFlankerTipo(
-    estimulos,
-    "Congruente",
-    left,
-    right
-  );
-  const erroresIncongruentes = getErroresFlankerTipo(
-    estimulos,
-    "Incongruente",
-    left,
-    right
-  );
-  const erroresNeutrales = getErroresFlankerTipo(
-    estimulos,
-    "Neutral",
-    left,
-    right
-  );
-  const tiempoReaccion = getTiempoReaccionFlanker(estimulos);
-  const tiempoTotal = `${moment(finishTime, "YYYY-MM-DD HH:mm:ss:SSS").diff(
-    moment(startTime, "YYYY-MM-DD HH:mm:ss:SSS"),
-    "seconds"
-  )}.${
-    moment(finishTime, "YYYY-MM-DD HH:mm:ss:SSS").diff(
-      moment(startTime, "YYYY-MM-DD HH:mm:ss:SSS"),
-      "miliseconds"
-    ) % 1000
-  }`;
+        clicks++;
+
+        tiempoTotal += moment(estimulo.clicked, "YYYY-MM-DD HH:mm:ss:SSS").diff(
+          moment(estimulo.emitted, "YYYY-MM-DD HH:mm:ss:SSS"),
+          "miliseconds"
+        );
+      } else {
+        omisiones++;
+      }
+
+      if (type === "Congruente") erroresCongruentes++;
+      else if (type === "Incongruente") erroresIncongruentes++;
+      else erroresNeutrales++;
+
+      errores++;
+    } else {
+      clicks++;
+
+      tiempoTotal += moment(estimulo.clicked, "YYYY-MM-DD HH:mm:ss:SSS").diff(
+        moment(estimulo.emitted, "YYYY-MM-DD HH:mm:ss:SSS"),
+        "miliseconds"
+      );
+
+      aciertos++;
+    }
+    return { ...estimulo, valid };
+  });
+
+  const tiempoReaccion = parseFloat(tiempoTotal / clicks).toFixed(2);
+  tiempoTotal = getTiempoTotal(test.startTime, test.endTime);
   return {
     errores,
+    aciertos,
+    estimulos,
     omisiones,
     tiempoTotal,
     tiempoReaccion,
@@ -166,7 +133,6 @@ const getResultadosFlanker = (estimulos, settings) => {
 };
 
 module.exports = {
-  getEstimulosFlanker,
   getResultadosFlanker,
-  getResultadosEstimulos,
+  getEstimulosFlanker,
 };

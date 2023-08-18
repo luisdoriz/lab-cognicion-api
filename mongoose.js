@@ -11,6 +11,7 @@ const Result = mongoose.model(
   new mongoose.Schema({
     end: Date,
     start: Date,
+    rule: String,
     name: String,
     type: Number,
     order: Number,
