@@ -41,8 +41,8 @@ const getSurveyByQuery = async (query) => {
   return Survey.findAll(query);
 };
 
-const getSurveyById = async (query) =>
-  Survey.findOne({
+const getSurveyById = async (query) => {
+  let current_survey = await Survey.findOne({
     where: query,
     include: [
       {
@@ -59,6 +59,9 @@ const getSurveyById = async (query) =>
       },
     ],
   });
+  if (current_survey === null) return current_survey;
+  return current_survey.toJSON();
+};
 
 const getUserSurveys = async (idUser = false) => {
   if (idUser) {
@@ -70,7 +73,7 @@ const getUserSurveys = async (idUser = false) => {
 };
 
 const getUserSurvey = async (id) => {
-  const results = await getById({ id });
+  const results = await getSurveyById({ id });
   return results;
 };
 

@@ -20,13 +20,10 @@ exports.getSurveyTypes = async (req, res) => {
 };
 
 exports.postSurvey = async (req, res) => {
-  const { body } = req;
   try {
+    const { body } = req;
     const new_body = body;
-    if (new_body.user) {
-      new_body.idUser = new_body.user.id;
-    }
-    delete new_body.user;
+    new_body.idUser = req.idUser;
     const user_test = await createSurvey(new_body);
     res.status(200).json({ data: user_test });
   } catch (error) {
@@ -36,10 +33,11 @@ exports.postSurvey = async (req, res) => {
 };
 
 exports.postSurveyAnswer = async (req, res) => {
-  const { body } = req;
   try {
+    const { body } = req;
     const new_body = body;
-    let survey = await getByAccessUrlId(body.idAccessUrl);
+    const { idAccessUrl } = req;
+    let survey = await getByAccessUrlId(idAccessUrl);
     new_body.idUser = survey.idUser;
     new_body.idPatient = survey.idPatient;
     new_body.idSurvey = survey.id;
@@ -53,12 +51,10 @@ exports.postSurveyAnswer = async (req, res) => {
 };
 
 exports.getSurveys = async (req, res) => {
-  const { query } = req;
-  const { id: idUser, isAdmin } = req.user;
-  const { admin = false } = query;
   try {
+    const { idUser, user } = req;
     let surveys = {};
-    if (!isAdmin || !admin) {
+    if (!user.idUserType < 2) {
       surveys = await getUserSurveys(idUser);
     } else {
       surveys = await getUserSurveys();
@@ -121,7 +117,7 @@ exports.getSurvey = async (req, res) => {
     if (!isAdmin || !admin) {
       query.idUser = idUser;
     }
-    const results = await Survey.find({ ...query });
+    const results = await Survey.findOne(query);
     res.status(200).json({
       status: responses.SUCCESS_STATUS,
       data: { survey, results },

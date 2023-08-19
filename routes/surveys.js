@@ -2,6 +2,10 @@ const express = require("express");
 const { userAuth } = require("../middleware/user");
 const { token, fbAuth } = require("../middleware/auth");
 const SurveysController = require("../controllers/surveys");
+const {
+  validAccessUrlOrFirebase,
+  validAccessUrl,
+} = require("../middleware/accessUrl");
 
 const results = express.Router();
 
@@ -9,7 +13,7 @@ const results = express.Router();
 results.post("/", [token, fbAuth, userAuth], SurveysController.postSurvey);
 results.post(
   "/answer",
-  [token, fbAuth, userAuth],
+  [token, validAccessUrl],
   SurveysController.postSurveyAnswer
 );
 
@@ -25,6 +29,10 @@ results.get(
   [token, fbAuth, userAuth],
   SurveysController.getSurveyTypes
 );
-results.get("/:id", [token, fbAuth, userAuth], SurveysController.getSurvey);
+results.get(
+  "/:id",
+  [token, validAccessUrlOrFirebase],
+  SurveysController.getSurvey
+);
 
 module.exports = results;

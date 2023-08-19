@@ -98,8 +98,8 @@ const getResultadosFlanker = (test, settings) => {
         omisiones++;
       }
 
-      if (type === "Congruente") erroresCongruentes++;
-      else if (type === "Incongruente") erroresIncongruentes++;
+      if (estimulo.type === "Congruente") erroresCongruentes++;
+      else if (estimulo.type === "Incongruente") erroresIncongruentes++;
       else erroresNeutrales++;
 
       errores++;
